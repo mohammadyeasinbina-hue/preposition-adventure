@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PREPOSITION ADVENTURE</title>
+<style>
+:root{--ink:#1d2b4f;--a:#ff8a3d;--g:#1f9d55;--r:#d93a40;--b:#2f6fe4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,"Noto Sans Bengali","Segoe UI",sans-serif;color:var(--ink);font-size:17px;line-height:1.5;background:linear-gradient(#8fd3ff,#d8f5c8 65%,#7ccf6b) fixed}
+#app{max-width:760px;margin:0 auto;padding:12px;perspective:900px}
+.card{background:#fff;border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 8px 0 rgba(0,0,0,.12),0 16px 26px rgba(0,0,0,.15);animation:in .4s}
+@keyframes in{from{opacity:0;transform:rotateX(18deg) translateY(16px)}}
+@keyframes bob{50%{transform:translateY(-8px)}}
+h1,h2,h3{margin:.3em 0}
+.big{font-size:56px;text-align:center;animation:bob 2s infinite;display:block}
+.c{text-align:center}
+button{font:inherit;font-weight:700;border:0;border-radius:14px;padding:10px 16px;min-height:48px;background:var(--a);color:#fff;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.22);margin:4px}
+button:active{transform:translateY(3px);box-shadow:none}
+button.s{background:var(--b)}button.ok{background:var(--g)}button.no{background:var(--r)}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:4px solid #7c3aed;outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.bar{height:14px;background:#dde5f5;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--g)}
+.opt{display:block;width:100%;text-align:left;background:#eaf0ff;color:var(--ink);font-size:19px}
+.opt.c1{background:var(--g);color:#fff}.opt.w1{background:var(--r);color:#fff}
+.ex{background:#fff4de;border-left:6px solid var(--a);padding:8px 12px;border-radius:10px;margin:8px 0}
+.q{font-size:21px;font-weight:700;margin:8px 0}
+.fb{padding:10px;border-radius:12px;margin:8px 0;background:#eef7ee}.fb.bad{background:#fdecec}
+.node{display:block;width:100%;text-align:left;font-size:19px}
+.scene{position:relative;height:200px;background:linear-gradient(#cfeaff,#fff6dc);border-radius:16px;overflow:hidden;margin:8px 0}
+.slab{position:absolute;left:25%;width:50%;top:58%;height:12px;background:#8b5a2b;border-radius:4px}
+.leg{position:absolute;top:58%;width:8px;height:60px;background:#6b4423}.l1{left:27%}.l2{left:71%}
+.ob{position:absolute;font-size:30px;translate:-50% 0}.ob.hl{filter:drop-shadow(0 0 6px #ff8a3d);animation:bob 1s infinite}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><main id="app" aria-live="polite"></main>
+<script>
+"use strict";
+/* ---------- LESSON DATA (question line = sentence|answer|wrong1|wrong2) ---------- */
+const LV=[
+{n:"IN",t:"IN – ভিতরে",
+l:"in মানে ভিতরে। বাক্স, ঘর, শহর, দেশ বা পানির ভিতরে কিছু থাকলে in ব্যবহার করি।",
+x:`The cat is in the box.|বিড়ালটি বাক্সের ভিতরে আছে।
+Water is in the glass.|গ্লাসে পানি আছে।
+I live in Dhaka.|আমি ঢাকায় থাকি।
+Birds are in the nest.|পাখিরা বাসার ভিতরে আছে।
+My book is in my bag.|আমার বই আমার ব্যাগের ভিতরে।`,
+m:"ভুল: I live at Dhaka. ঠিক: I live in Dhaka. শহর ও দেশের আগে in বসে।",
+k:"in মানে ভিতরে।",
+P:`The milk is ___ the fridge.|in|on|at
+Fish live ___ the pond.|in|on|above
+I keep my pen ___ my bag.|in|on|over
+She lives ___ Bangladesh.|in|at|on
+There are many stars ___ the sky.|in|on|at`,
+C:`ভুল শুধরাও – He lives AT Chittagong. ঠিক: He lives ___ Chittagong.|in|on|to
+The teacher is ___ the classroom.|in|on|under
+ভুল শুধরাও – There is a snake ON the hole. ঠিক: There is a snake ___ the hole.|in|on|from
+I can see my face ___ the mirror.|in|on|under
+ভুল শুধরাও – The sugar is ON the jar. ঠিক: The sugar is ___ the jar.|in|from|to`,
+T:`The children are playing ___ the garden.|in|under|over
+My mother is ___ the kitchen.|in|on|over
+There is some sugar ___ the tea.|in|on|under
+He was born ___ Sylhet.|in|on|above
+A fish is ___ the pond.|in|on|over
+I am ___ my room.|in|on|above
+The keys are ___ my pocket.|in|on|over
+He is swimming ___ the river.|in|over|above
+ভুল শুধরাও – There are many people ON the room. ঠিক: There are many people ___ the room.|in|at|over
+'ভিতরে' বোঝাতে কোন শব্দ বসবে? ___|in|on|under`},
+{n:"ON",t:"ON – উপরে (ছুঁয়ে)",
+l:"on মানে কোনো তলের উপরে লেগে বা ছুঁয়ে থাকা (টেবিল, দেয়াল, মেঝে, ছাদ)। in মানে ভিতরে, আর on মানে উপরের তলে।",
+x:`The book is on the table.|বইটি টেবিলের উপরে আছে।
+The picture is on the wall.|ছবিটি দেয়ালে আছে।
+A fly is on the ceiling.|একটি মাছি ছাদে (সিলিংয়ে) বসে আছে।
+He is sitting on the chair.|সে চেয়ারে বসে আছে।
+Put the cup on the shelf.|কাপটি তাকের উপরে রাখো।`,
+m:"ভুল: The book is in the table. ঠিক: The book is on the table. টেবিলের ভিতরে নয়, উপরে।",
+k:"on মানে কোনো তলের উপরে ছুঁয়ে/লেগে থাকা।",
+P:`The book is ___ the table.|on|in|from
+The picture is ___ the wall.|on|in|from
+The cat is sitting ___ the sofa.|on|in|from
+There is a lamp ___ the desk.|on|in|from
+The bird is sitting ___ the branch.|on|in|into`,
+C:`ভুল শুধরাও – The glass is IN the table. ঠিক: The glass is ___ the table.|on|at|into
+She wears a ring ___ her finger.|on|in|at
+ভুল শুধরাও – The map is IN the wall. ঠিক: The map is ___ the wall.|on|at|into
+I put the plates ___ the shelf.|on|into|from
+He is standing ___ the floor.|on|from|into`,
+T:`My phone is ___ the table.|on|in|into
+The poster is ___ the door.|on|into|under
+She put her bag ___ the chair.|on|in|from
+A spider is ___ the ceiling.|on|in|into
+Please write your name ___ the paper.|on|into|from
+The dishes are ___ the kitchen counter.|on|into|from
+I can see a mark ___ the wall.|on|into|from
+There is a stamp ___ the envelope.|on|into|from
+ভুল শুধরাও – The cat is sleeping IN the roof. ঠিক: The cat is sleeping ___ the roof.|on|into|from
+'উপরের তলে ছুঁয়ে থাকা' বোঝাতে কোন শব্দ বসবে? ___|on|in|under`},
+{n:"UNDER",t:"UNDER – নিচে",
+l:"under মানে নিচে। কোনো কিছুর ঠিক নিচে থাকলে under ব্যবহার করি। on-এর উল্টো অবস্থান হলো under।",
+x:`The cat is under the table.|বিড়ালটি টেবিলের নিচে আছে।
+The shoes are under the bed.|জুতাগুলো খাটের নিচে আছে।
+The boat goes under the bridge.|নৌকাটি সেতুর নিচ দিয়ে যায়।
+The ball is under the chair.|বলটি চেয়ারের নিচে আছে।
+Children are sitting under the tree.|শিশুরা গাছের নিচে বসে আছে।`,
+m:"ভুল: The ball is on the chair. (নিচে বোঝাতে) ঠিক: The ball is under the chair.",
+k:"under মানে নিচে।",
+P:`The shoes are ___ the bed. (খাটের নিচে)|under|on|in
+The dog is sleeping ___ the tree. (গাছের নিচে)|under|on|into
+The ball is ___ the chair. (চেয়ারের নিচে)|under|on|in
+The boat goes ___ the bridge. (সেতুর নিচ দিয়ে)|under|on|in
+A coin fell ___ the sofa. (সোফার নিচে)|under|on|in`,
+C:`ভুল শুধরাও – The bag is ON the desk. (ডেস্কের নিচে) ঠিক: The bag is ___ the desk.|under|in|at
+The box is ___ the table. (টেবিলের নিচে; on-এর উল্টো)|under|into|from
+The mouse is hiding ___ the bed. (খাটের নিচে)|under|on|between
+ভুল শুধরাও – She is hiding IN the table. (টেবিলের নিচে) ঠিক: She is hiding ___ the table.|under|on|into
+We sit ___ an umbrella. (ছাতার নিচে)|under|on|at`,
+T:`My slippers are ___ the bed. (খাটের নিচে)|under|on|in
+The cat is ___ the car. (গাড়ির নিচে)|under|on|in
+Water flows ___ the bridge. (সেতুর নিচ দিয়ে)|under|on|at
+The child is hiding ___ the blanket. (কম্বলের নিচে)|under|on|at
+The books are ___ the desk. (ডেস্কের নিচে)|under|on|in
+They are standing ___ the roof. (ছাদের নিচে)|under|on|into
+The fish swim ___ the boat. (নৌকার নিচে)|under|on|at
+ভুল শুধরাও – The ball is OVER the chair. (চেয়ারের নিচে) ঠিক: The ball is ___ the chair.|under|in|at
+ভুল শুধরাও – He is sitting AT the tree. (গাছের নিচে) ঠিক: He is sitting ___ the tree.|under|on|into
+'নিচে' বোঝাতে কোন শব্দ বসবে? ___|under|in|on`},
+{n:"ABOVE / BELOW / OVER",t:"ABOVE, BELOW ও OVER",
+l:"above মানে কিছুর চেয়ে উঁচুতে। below মানে কিছুর চেয়ে নিচুতে (above-এর উল্টো)। over মানে ঠিক উপর দিয়ে, উপরে ঢেকে বা পার হয়ে। under মানে ঠিক নিচে, আর below মানে শুধু নিচু অবস্থানে।",
+x:`The plane is above the clouds.|বিমানটি মেঘের উপরে (উঁচুতে) আছে।
+The picture is above the sofa.|ছবিটি সোফার উপরের দিকে (উঁচুতে) আছে।
+The temperature is below zero.|তাপমাত্রা শূন্যের নিচে।
+The village is below the hill.|গ্রামটি পাহাড়ের নিচের দিকে আছে।
+A bridge is over the river.|নদীর উপর দিয়ে একটি সেতু আছে।`,
+m:"ভুল: The temperature is above zero. (মাইনাস বোঝাতে) ঠিক: below zero। ঢেকে রাখা বা উপর দিয়ে পার হওয়া বোঝাতে over ব্যবহার হয়।",
+k:"above = উঁচুতে, below = নিচুতে, over = ঠিক উপর দিয়ে/ঢেকে।",
+P:`The plane is flying ___ the clouds. (মেঘের উপরে, উঁচুতে)|above|below|beside
+The temperature is ___ zero. (শূন্যের নিচে)|below|above|between
+The sun is ___ the horizon now. (সূর্য দিগন্তের নিচে নেমে গেছে)|below|above|on
+There is a bridge ___ the river. (নদীর উপর দিয়ে)|over|beside|inside
+Hold the umbrella ___ your head. (মাথার উপরে ঢেকে)|over|under|beside`,
+C:`The shelf is ___ the door. (দরজার উপরে, উঁচুতে)|above|below|beside
+ভুল শুধরাও – The village is ABOVE the hill. (পাহাড়ের নিচের দিকে) ঠিক: The village is ___ the hill.|below|on|into
+The birds are flying ___ the city. (শহরের উপর দিয়ে)|over|under|between
+ভুল শুধরাও – The temperature is ABOVE zero. (মাইনাস ৩ ডিগ্রি) ঠিক: The temperature is ___ zero.|below|on|from
+The fish are ___ the water surface. (পানির উপরিতলের নিচে)|below|over|into`,
+T:`The lamp hangs ___ the table. (টেবিলের উপরে)|above|below|beside
+My room is ___ the kitchen. (রান্নাঘরের উপরের তলায়)|above|below|beside
+The basement is ___ the ground. (মাটির নিচে)|below|above|beside
+The kite is ___ the trees. (গাছের উপরে, উঁচুতে)|above|below|between
+The helicopter flew ___ the city. (শহরের উপর দিয়ে)|over|below|between
+Write your name ___ the line. (লাইনের নিচে)|below|above|from
+Put a blanket ___ the baby. (শিশুর গায়ের উপর ঢেকে)|over|below|between
+ভুল শুধরাও – The moon is BELOW the clouds. (মেঘের উপরে) ঠিক: The moon is ___ the clouds.|above|beside|inside
+ভুল শুধরাও – The tunnel is OVER the river. (নদীর নিচে) ঠিক: The tunnel is ___ the river.|under|above|on
+'উঁচুতে, ছুঁয়ে না থেকে' বোঝাতে কোন শব্দ বসবে? ___|above|on|under`},
+{n:"MIXED",t:"মিশ্র অনুশীলন (in, on, under, above, below)",
+l:"এখানে আগের সব preposition একসাথে অনুশীলন করব। ছবি কল্পনা করো: ভিতরে? উপরে ছুঁয়ে? নিচে? উঁচুতে? নিচুতে?",
+x:`The keys are in my bag.|চাবিগুলো আমার ব্যাগের ভিতরে।
+The bag is on the chair.|ব্যাগটি চেয়ারের উপরে।
+The cat is under the bed.|বিড়ালটি খাটের নিচে।
+The clock is above the door.|ঘড়িটি দরজার উপরে (উঁচুতে)।
+The cellar is below the ground.|মাটির নিচে একটি ভূগর্ভস্থ ঘর আছে।`,
+m:"ভুল: The book is in the table. (উপরে বোঝাতে) ঠিক: on the table। মনে রাখো: ভিতরে = in, উপরে ছুঁয়ে = on, নিচে = under, উঁচুতে = above, নিচুতে = below।",
+k:"in = ভিতরে, on = উপরে ছুঁয়ে, under = নিচে, above = উঁচুতে, below = নিচুতে।",
+P:`The apples are ___ the basket. (ঝুড়ির ভিতরে)|in|on|under
+The vase is ___ the table. (টেবিলের উপরে, ছুঁয়ে)|on|in|under
+The football is ___ the car. (গাড়ির নিচে)|under|on|in
+The fan is ___ my head. (মাথার উপরে, উঁচুতে)|above|in|under
+The fish is ___ the water. (পানির ভিতরে)|in|on|above`,
+C:`ভুল শুধরাও – The pen is ON my pocket. (পকেটের ভিতরে) ঠিক: The pen is ___ my pocket.|in|under|above
+The shoes are ___ the shelf. (তাকের উপরে, ছুঁয়ে)|on|in|under
+ভুল শুধরাও – The books are UNDER the shelf. (তাকের উপরে, ছুঁয়ে) ঠিক: The books are ___ the shelf.|on|from|into
+The plane is ___ the clouds. (মেঘের উপরে, উঁচুতে)|above|in|under
+ভুল শুধরাও – The dog is ON the table. (টেবিলের নিচে) ঠিক: The dog is ___ the table.|under|in|above`,
+T:`The money is ___ my wallet. (ওয়ালেটের ভিতরে)|in|on|under
+The picture is ___ the wall. (দেয়ালে)|on|in|under
+The ball is ___ the sofa. (সোফার নিচে)|under|on|above
+The light is ___ the table. (টেবিলের উপরে, উঁচুতে ঝুলছে)|above|under|in
+My notebook is ___ the desk. (ডেস্কের উপরে)|on|in|under
+There is a fish ___ the bowl. (বাটির ভিতরে)|in|on|above
+The boat passes ___ the bridge. (সেতুর নিচ দিয়ে)|under|on|above
+The hat is ___ his head. (মাথার উপরে ছুঁয়ে)|on|in|under
+The cellar is ___ the ground. (মাটির নিচে)|below|above|on
+ভুল শুধরাও – The coin is ON the box. (বাক্সের ভিতরে) ঠিক: The coin is ___ the box.|in|under|above`},
+{n:"BEHIND",t:"BEHIND – পিছনে",
+l:"behind মানে পিছনে। কারও বা কিছুর পিছন দিকে থাকলে behind ব্যবহার করি।",
+x:`The cat is behind the door.|বিড়ালটি দরজার পিছনে আছে।
+The garden is behind the house.|বাগানটি বাড়ির পিছনে।
+He stands behind me.|সে আমার পিছনে দাঁড়িয়ে আছে।
+The sun is behind the clouds.|সূর্য মেঘের পিছনে।
+Hide behind the tree.|গাছের পিছনে লুকাও।`,
+m:"ভুল: The cat is behind of the door. ঠিক: behind the door। behind-এর পরে of বসে না।",
+k:"behind মানে পিছনে।",
+P:`The boy is hiding ___ the door. (দরজার পিছনে)|behind|under|above
+The garden is ___ the house. (বাড়ির পিছনে)|behind|above|in
+The moon is ___ the clouds. (মেঘের পিছনে)|behind|on|at
+She is standing ___ me. (আমার পিছনে)|behind|under|in
+The car is parked ___ the shop. (দোকানের পিছনে)|behind|above|under`,
+C:`ভুল শুধরাও – The cat is BEFORE the door. (দরজার পিছনে) ঠিক: The cat is ___ the door.|behind|on|from
+The playground is ___ the school. (স্কুলের পিছনে)|behind|above|inside
+ভুল শুধরাও – He hides BEHIND OF the tree. ঠিক: He hides ___ the tree.|behind|beside|under
+The thief is ___ the curtain. (পর্দার পিছনে)|behind|above|at
+My bag is ___ the chair. (চেয়ারের পিছনে)|behind|over|into`,
+T:`The bus is ___ the truck. (ট্রাকের পিছনে)|behind|under|on
+There is a pond ___ our house. (আমাদের বাড়ির পিছনে)|behind|above|in
+The child is ___ his mother. (মায়ের পিছনে)|behind|on|into
+The kite is ___ the tree. (গাছের পিছনে)|behind|under|on
+My bicycle is ___ the gate. (গেটের পিছনে)|behind|above|into
+The last runner is ___ the others. (অন্যদের পিছনে)|behind|above|in
+The mirror is ___ the door. (দরজার পিছনে)|behind|under|on
+ভুল শুধরাও – The shop is BEFORE the bank. (ব্যাংকের পিছনে) ঠিক: The shop is ___ the bank.|behind|on|from
+ভুল শুধরাও – The dog is hiding ON the sofa. (সোফার পিছনে) ঠিক: The dog is hiding ___ the sofa.|behind|into|from
+'পিছনে' বোঝাতে কোন শব্দ বসবে? ___|behind|above|under`},
+{n:"IN FRONT OF",t:"IN FRONT OF – সামনে",
+l:"in front of মানে সামনে। তিনটি শব্দ একসাথে লিখতে হয়: in front of। এটি behind-এর উল্টো।",
+x:`The car is in front of the house.|গাড়িটি বাড়ির সামনে।
+The teacher stands in front of the class.|শিক্ষক ক্লাসের সামনে দাঁড়িয়ে আছেন।
+There is a tree in front of my window.|আমার জানালার সামনে একটি গাছ আছে।
+Don't stand in front of the TV.|টিভির সামনে দাঁড়িও না।
+She is sitting in front of me.|সে আমার সামনে বসে আছে।`,
+m:"ভুল: The car is in front the house. ঠিক: in front of the house। শেষের of ভুলে যেও না।",
+k:"in front of মানে সামনে (behind-এর উল্টো)।",
+P:`The car is ___ the house. (বাড়ির সামনে)|in front of|behind|above
+The teacher stands ___ the class. (ক্লাসের সামনে)|in front of|behind|under
+There is a tree ___ my window. (জানালার সামনে)|in front of|behind|on
+The boy is ___ the girl. (মেয়েটির সামনে)|in front of|behind|under
+The bank is ___ the park. (পার্কের সামনে)|in front of|behind|into`,
+C:`ভুল শুধরাও – The shop is BEHIND the school. (স্কুলের সামনে) ঠিক: The shop is ___ the school.|in front of|behind|under
+Don't stand ___ the TV. (টিভির সামনে)|in front of|behind|under
+ভুল শুধরাও – The car is IN FRONT the house. ঠিক: The car is ___ the house.|in front of|behind|under
+The dog is sitting ___ the gate. (গেটের সামনে)|in front of|behind|in
+Please wait ___ the office. (অফিসের সামনে)|in front of|behind|under`,
+T:`The bus stop is ___ the mall. (মলের সামনে)|in front of|behind|under
+The photographer is ___ the group. (দলের সামনে)|in front of|behind|above
+The kids are ___ the TV. (টিভির সামনে)|in front of|behind|into
+There is a big gate ___ the school. (স্কুলের সামনে)|in front of|behind|under
+He parked his bike ___ the shop. (দোকানের সামনে)|in front of|behind|above
+The singer stands ___ the crowd. (দর্শকদের সামনে)|in front of|behind|under
+A tall boy is ___ me. (আমার সামনে)|in front of|behind|on
+ভুল শুধরাও – The dog is BEHIND the door. (দরজার সামনে) ঠিক: The dog is ___ the door.|in front of|behind|under
+ভুল শুধরাও – She is sitting IN FRONT me. ঠিক: She is sitting ___ me.|in front of|behind|under
+'সামনে' বোঝাতে কোন অংশ বসবে? ___|in front of|behind|under`},
+{n:"BESIDE / NEXT TO",t:"BESIDE ও NEXT TO – পাশে",
+l:"beside ও next to — দুটোরই মানে পাশে। কিছুর ঠিক পাশে থাকলে যেকোনো একটি বসে। next to দুই শব্দ, আলাদা করে লিখতে হয়।",
+x:`The school is beside the park.|স্কুলটি পার্কের পাশে।
+Sit next to me.|আমার পাশে বসো।
+The pharmacy is next to the bank.|ফার্মেসিটি ব্যাংকের পাশে।
+My bag is beside the chair.|আমার ব্যাগ চেয়ারের পাশে।
+She lives next to a mosque.|সে একটি মসজিদের পাশে থাকে।`,
+m:"ভুল: The bag is besides the chair. ঠিক: beside the chair। besides মানে 'ছাড়াও', পাশে নয়।",
+k:"beside / next to মানে পাশে।",
+P:`The school is ___ the park. (পার্কের পাশে)|beside|above|under
+Sit ___ me. (আমার পাশে)|next to|above|under
+The pharmacy is ___ the bank. (ব্যাংকের পাশে)|next to|behind|on
+My bag is ___ the chair. (চেয়ারের পাশে)|beside|above|in
+He stands ___ his friend. (বন্ধুর পাশে)|beside|under|into`,
+C:`ভুল শুধরাও – The bag is BESIDES the chair. ঠিক: The bag is ___ the chair.|beside|besides|on
+She lives ___ a mosque. (মসজিদের পাশে)|next to|above|under
+ভুল শুধরাও – The shop is NEXT the post office. ঠিক: The shop is ___ the post office.|next to|next|under
+The lamp is ___ the bed. (খাটের পাশে)|beside|on|below
+The cinema is ___ the market. (বাজারের পাশে)|next to|behind|over`,
+T:`The ball is ___ the box. (বাক্সের পাশে)|beside|in|under
+Mina sits ___ Rina. (রিনার পাশে)|next to|on|over
+The bike is ___ the wall. (দেয়ালের পাশে)|beside|into|above
+There is a river ___ our village. (গ্রামের পাশে)|next to|in|above
+The mouse is ___ the cat. (বিড়ালের পাশে)|beside|into|under
+My seat is ___ the window. (জানালার পাশে)|next to|under|in
+The hospital is ___ the school. (স্কুলের পাশে)|beside|inside|above
+ভুল শুধরাও – He sits BESIDES me. ঠিক: He sits ___ me.|beside|besides|on
+ভুল শুধরাও – The cafe is NEXT the hotel. ঠিক: The cafe is ___ the hotel.|next to|next|in
+'পাশে' বোঝাতে কোনটি বসবে? ___|beside|above|under`},
+{n:"BETWEEN / AMONG",t:"BETWEEN ও AMONG – মাঝে ও মধ্যে",
+l:"সাধারণ নিয়মে between মানে দুইটি জিনিস বা মানুষের মাঝখানে। among মানে তিন বা তার বেশি জিনিসের মধ্যে, ভিড়ের ভিতরে।",
+x:`The shop is between the bank and the school.|দোকানটি ব্যাংক ও স্কুলের মাঝখানে।
+I sit between Rina and Mina.|আমি রিনা ও মিনার মাঝখানে বসি।
+The house is among the trees.|বাড়িটি গাছগুলোর মধ্যে (ঘেরা)।
+He is standing among the children.|সে শিশুদের মধ্যে দাঁড়িয়ে আছে।
+Share the sweets among the five boys.|মিষ্টিগুলো পাঁচটি ছেলের মধ্যে ভাগ করো।`,
+m:"ভুল: The ball is among two boxes. ঠিক: between two boxes। দুইটির মাঝে between, অনেকের মধ্যে among।",
+k:"between = দুইটির মাঝে, among = অনেকের মধ্যে।",
+P:`The shop is ___ the bank and the school. (দুইটির মাঝে)|between|among|under
+I sit ___ Rina and Mina. (দুজনের মাঝে)|between|among|on
+The house is ___ the trees. (অনেক গাছের মধ্যে)|among|between|under
+He is standing ___ the children. (অনেক শিশুর মধ্যে)|among|between|on
+The ball is ___ two boxes. (দুইটি বাক্সের মাঝে)|between|among|under`,
+C:`ভুল শুধরাও – The park is AMONG the school and the hospital. ঠিক: The park is ___ the school and the hospital.|between|among|on
+Share the toys ___ the four kids. (চারজন শিশুর মধ্যে)|among|between|on
+A rose is ___ the flowers. (অনেক ফুলের মধ্যে)|among|between|under
+ভুল শুধরাও – He sits BETWEEN many students. (অনেক ছাত্রের মধ্যে) ঠিক: He sits ___ many students.|among|between|on
+The letter is ___ page 4 and page 5. (দুই পাতার মাঝে)|between|among|under`,
+T:`The cat is ___ the bed and the wall. (দুইটির মাঝে)|between|among|under
+She is the best ___ all the girls. (সব মেয়ের মধ্যে)|among|between|under
+The river flows ___ two hills. (দুই পাহাড়ের মাঝ দিয়ে)|between|among|under
+There is a secret ___ the three friends. (তিন বন্ধুর মধ্যে)|among|between|on
+I found my pen ___ my books. (অনেক বইয়ের মধ্যে)|among|between|on
+The line is ___ point A and point B. (দুই বিন্দুর মাঝে)|between|among|under
+The dog sat ___ the two boys. (দুই ছেলের মাঝে)|between|among|on
+A bird is hiding ___ the leaves. (অনেক পাতার মধ্যে)|among|between|on
+ভুল শুধরাও – The bag is AMONG the chair and the table. ঠিক: The bag is ___ the chair and the table.|between|among|on
+'দুইটির মাঝখানে' বোঝাতে কোনটি বসবে? ___|between|among|under`},
+{n:"NEAR / FAR FROM",t:"NEAR ও FAR FROM – কাছে ও দূরে",
+l:"near মানে কাছে। far from মানে থেকে দূরে। far-এর পরে from বসাতে হয়।",
+x:`My school is near my house.|আমার স্কুল আমার বাড়ির কাছে।
+The market is near the station.|বাজারটি স্টেশনের কাছে।
+The village is far from the city.|গ্রামটি শহর থেকে দূরে।
+The moon is far from the earth.|চাঁদ পৃথিবী থেকে দূরে।
+Is the bank near here?|ব্যাংকটি কি এখানে কাছে?`,
+m:"ভুল: The village is far the city. ঠিক: far from the city। far-এর পরে from ভুলে যেও না।",
+k:"near = কাছে, far from = থেকে দূরে।",
+P:`My school is ___ my house. (বাড়ির কাছে)|near|far from|under
+The market is ___ the station. (স্টেশনের কাছে)|near|far from|above
+The village is ___ the city. (শহর থেকে দূরে)|far from|near|in
+The moon is ___ the earth. (পৃথিবী থেকে দূরে)|far from|near|on
+Sit ___ the fire. (আগুনের কাছে)|near|far from|under`,
+C:`ভুল শুধরাও – The village is FAR the city. ঠিক: The village is ___ the city.|far from|far|near
+Is there a bank ___ here? (এখানে কাছে)|near|far from|on
+My uncle lives ___ our home. (বাড়ি থেকে দূরে)|far from|near|beside
+ভুল শুধরাও – The hospital is FAR FROM my house. (খুব কাছে) ঠিক: The hospital is ___ my house.|near|far from|above
+The park is ___ the lake. (লেকের কাছে)|near|far from|above`,
+T:`The shop is ___ my home. (বাড়ির কাছে)|near|far from|above
+The airport is ___ the city centre. (শহর থেকে দূরে)|far from|near|on
+The bus stop is ___ the school. (স্কুলের কাছে)|near|far from|under
+Antarctica is ___ Bangladesh. (বাংলাদেশ থেকে অনেক দূরে)|far from|near|beside
+I live ___ the river. (নদীর কাছে)|near|far from|above
+Our school is ___ the sea. (সাগর থেকে দূরে)|far from|near|on
+The police station is ___ here. (এখানে কাছেই)|near|far from|under
+My grandmother lives ___ us. (আমাদের থেকে দূরে)|far from|near|beside
+ভুল শুধরাও – The school is FAR the mosque. (মসজিদ থেকে দূরে) ঠিক: The school is ___ the mosque.|far from|far|near
+'কাছে' বোঝাতে কোনটি বসবে? ___|near|far from|under`},
+{n:"AT",t:"AT – ঠিক সময়",
+l:"at দিয়ে ঘড়ির নির্দিষ্ট সময় বোঝাই: at 5 o'clock, at 7:30। at noon (ঠিক দুপুরে), at midnight (মাঝরাতে) ও at night (রাতে)-ও চলে।",
+x:`The class starts at 8 o'clock.|ক্লাস আটটায় শুরু হয়।
+I wake up at 6:30.|আমি সাড়ে ছয়টায় ঘুম থেকে উঠি।
+We have lunch at noon.|আমরা ঠিক দুপুরে খাই।
+The shop closes at midnight.|দোকান মাঝরাতে বন্ধ হয়।
+Birds sleep at night.|পাখিরা রাতে ঘুমায়।`,
+m:"ভুল: The class starts in 8 o'clock. ঠিক: at 8 o'clock। ঘড়ির সময়ের আগে at বসে।",
+k:"ঘড়ির নির্দিষ্ট সময়ের আগে at বসে।",
+P:`The train leaves ___ 9 o'clock.|at|in|on
+I go to bed ___ 10:30.|at|in|on
+The meeting is ___ 4 p.m.|at|in|on
+We eat lunch ___ noon.|at|in|on
+The school opens ___ 7:45.|at|in|on`,
+C:`ভুল শুধরাও – The film starts IN 6 o'clock. ঠিক: The film starts ___ 6 o'clock.|at|on|from
+Stars come out ___ night.|at|in|on
+ভুল শুধরাও – I wake up ON 5:30. ঠিক: I wake up ___ 5:30.|at|in|to
+The bank closes ___ 3 p.m.|at|in|on
+Ghosts appear ___ midnight in stories.|at|in|on`,
+T:`Our exam begins ___ 10 a.m.|at|in|on
+The bus comes ___ 7:15.|at|in|on
+I call my mother ___ 8 o'clock.|at|in|on
+The shop opens ___ 9:30 a.m.|at|in|on
+We watch TV ___ night.|at|in|on
+The sun is hottest ___ noon.|at|in|on
+He finishes work ___ 5:00 p.m.|at|in|on
+The plane lands ___ 11:20.|at|in|on
+ভুল শুধরাও – The match starts ON 4 o'clock. ঠিক: The match starts ___ 4 o'clock.|at|in|to
+'ঘড়ির নির্দিষ্ট সময়ের আগে' কোন শব্দ বসবে? ___|at|in|on`},
+{n:"ON (দিন)",t:"ON – বার ও তারিখ",
+l:"on দিয়ে বার (on Monday) ও তারিখ (on 5 May) বোঝাই। নির্দিষ্ট দিনের সকাল/সন্ধ্যাও on: on Friday morning।",
+x:`We have a test on Monday.|আমাদের সোমবারে পরীক্ষা আছে।
+My birthday is on 5 May.|আমার জন্মদিন ৫ মে।
+Victory Day is on 16 December.|বিজয় দিবস ১৬ ডিসেম্বর।
+I visit my uncle on Friday morning.|আমি শুক্রবার সকালে চাচার বাড়ি যাই।
+The party is on Saturday.|পার্টিটি শনিবার।`,
+m:"ভুল: I have a test in Monday. ঠিক: on Monday। বারের নামের আগে on বসে।",
+k:"বার ও তারিখের আগে on বসে।",
+P:`We have a test ___ Monday.|on|in|at
+My birthday is ___ 5 May.|on|in|at
+The shop is closed ___ Friday.|on|in|at
+Victory Day is ___ 16 December.|on|in|at
+She was born ___ 12 March.|on|in|at`,
+C:`ভুল শুধরাও – I go to school IN Sunday. ঠিক: I go to school ___ Sunday.|on|at|to
+The wedding is ___ Saturday evening.|on|in|at
+ভুল শুধরাও – Her birthday is AT 9 June. ঠিক: Her birthday is ___ 9 June.|on|in|from
+We play cricket ___ Fridays.|on|in|at
+The exam is ___ 20 November.|on|in|at`,
+T:`The film starts ___ Tuesday.|on|in|at
+My sister was born ___ 3 July.|on|in|at
+We visit our grandparents ___ Sundays.|on|in|at
+The concert is ___ 14 February.|on|in|at
+I will see you ___ Thursday morning.|on|in|at
+Independence Day is ___ 26 March.|on|in|at
+She has a class ___ Wednesday.|on|in|at
+The trip begins ___ 1 January.|on|in|at
+ভুল শুধরাও – The meeting is IN Monday. ঠিক: The meeting is ___ Monday.|on|at|to
+'বার ও তারিখের আগে' কোন শব্দ বসবে? ___|on|in|at`},
+{n:"IN (সময়)",t:"IN – মাস, বছর ও ঋতু",
+l:"in দিয়ে মাস (in May), বছর (in 2012), ঋতু (in summer) এবং সকাল/বিকাল/সন্ধ্যা (in the morning) বোঝাই। কিন্তু রাত বোঝাতে at night বলি।",
+x:`My birthday is in May.|আমার জন্মদিন মে মাসে।
+She was born in 2012.|সে ২০১২ সালে জন্মেছে।
+It is hot in summer.|গ্রীষ্মে গরম পড়ে।
+I study in the morning.|আমি সকালে পড়ি।
+We will meet in two days.|আমরা দুই দিন পরে দেখা করব।`,
+m:"ভুল: I study at the morning. ঠিক: in the morning। কিন্তু রাতে বলতে হয় at night।",
+k:"মাস, বছর, ঋতু ও সকাল/বিকালের আগে in বসে।",
+P:`My birthday is ___ May.|in|on|at
+She was born ___ 2012.|in|on|at
+It is very hot ___ summer.|in|on|at
+I do my homework ___ the evening.|in|on|at
+Winter starts ___ December.|in|on|at`,
+C:`ভুল শুধরাও – We have an exam ON June. ঠিক: We have an exam ___ June.|in|at|from
+It is cold here ___ winter.|in|on|at
+ভুল শুধরাও – He was born ON 2008. ঠিক: He was born ___ 2008.|in|at|to
+I will finish the work ___ two hours.|in|on|at
+The sun rises ___ the morning.|in|on|at`,
+T:`The school reopens ___ January.|in|on|at
+My father was born ___ 1980.|in|on|at
+Mangoes are sweet ___ summer.|in|on|at
+We play football ___ the afternoon.|in|on|at
+The Language Movement happened ___ 1952.|in|on|at
+She will arrive ___ ten minutes.|in|on|at
+Rain comes ___ July.|in|on|at
+I feel sleepy ___ the afternoon.|in|on|at
+ভুল শুধরাও – I was born AT 2005. ঠিক: I was born ___ 2005.|in|on|to
+'মাস ও বছরের আগে' কোন শব্দ বসবে? ___|in|on|at`},
+{n:"BEFORE / AFTER",t:"BEFORE ও AFTER – আগে ও পরে",
+l:"before মানে আগে। after মানে পরে। before lunch = দুপুরের খাবারের আগে, after school = স্কুলের পরে। দুটো একে অপরের উল্টো।",
+x:`Brush your teeth before bed.|ঘুমানোর আগে দাঁত মাজো।
+I wash my hands before lunch.|দুপুরের খাবারের আগে হাত ধুই।
+We play after school.|স্কুলের পরে আমরা খেলি।
+Monday comes after Sunday.|রবিবারের পরে সোমবার আসে।
+Tuesday comes before Wednesday.|মঙ্গলবার বুধবারের আগে আসে।`,
+m:"ভুল: before-এর জায়গায় after বসালে অর্থ উল্টে যায়। A comes before B মানে A আগে, B পরে।",
+k:"before = আগে, after = পরে।",
+P:`Wash your hands ___ lunch. (খাবারের আগে)|before|after|at
+We go home ___ school. (স্কুলের পরে)|after|before|in
+Sunday comes ___ Monday. (সোমবারের আগে)|before|after|on
+I brush my teeth ___ bed. (ঘুমানোর আগে)|before|after|on
+We watch TV ___ dinner. (রাতের খাবারের পরে)|after|before|on`,
+C:`ভুল শুধরাও – Tuesday comes AFTER Wednesday. (মঙ্গলবার বুধবারের আগে) ঠিক: Tuesday comes ___ Wednesday.|before|after|on
+Do your homework ___ dinner. (খাবারের আগে)|before|after|at
+We rest ___ the match. (খেলার পরে)|after|before|at
+ভুল শুধরাও – Ten comes BEFORE nine. (নয়ের পরে দশ) ঠিক: Ten comes ___ nine.|after|before|on
+I read a book ___ sleeping. (ঘুমানোর আগে)|before|after|on`,
+T:`Breakfast is ___ lunch. (দুপুরের খাবারের আগে)|before|after|at
+Morning comes ___ afternoon. (বিকালের আগে)|before|after|in
+Brush your teeth ___ breakfast. (নাস্তার পরে)|after|before|on
+Nine comes ___ eight. (আটের পরে)|after|before|at
+She called me ___ the class. (ক্লাসের আগে)|before|after|on
+Let's clean the room ___ the party. (পার্টির পরে)|after|before|at
+Tea time is ___ dinner. (রাতের খাবারের আগে)|before|after|on
+The students go home ___ the last class. (শেষ ক্লাসের পরে)|after|before|in
+ভুল শুধরাও – December comes BEFORE November. (নভেম্বরের পরে) ঠিক: December comes ___ November.|after|before|on
+'আগে' বোঝাতে কোন শব্দ বসবে? ___|before|after|on`},
+{n:"FOR / SINCE / DURING / UNTIL",t:"DURING, SINCE, FOR ও UNTIL",
+l:"for + সময়ের দৈর্ঘ্য (for two hours)। since + কখন থেকে শুরু (since 2020)। during + চলাকালীন সময় (during the holidays)। until = পর্যন্ত (until 5 p.m.)। since ও for সাধারণত have/has + V3-এর সাথে বসে।",
+x:`I have studied for two hours.|আমি দুই ঘণ্টা ধরে পড়ছি।
+She has lived here since 2015.|সে ২০১৫ সাল থেকে এখানে থাকে।
+We swam during the holidays.|ছুটির সময় আমরা সাঁতার কেটেছি।
+Wait here until 5 p.m.|বিকেল ৫টা পর্যন্ত এখানে অপেক্ষা করো।
+It has rained since morning.|সকাল থেকে বৃষ্টি হচ্ছে।`,
+m:"ভুল: I have lived here since five years. ঠিক: for five years। সময়ের দৈর্ঘ্য হলে for, শুরুর সময় হলে since।",
+k:"for = সময়ের দৈর্ঘ্য, since = কখন থেকে, during = চলাকালীন, until = পর্যন্ত।",
+P:`I have lived here ___ 2015. (২০১৫ সাল থেকে)|since|for|during
+She has studied ___ three hours. (তিন ঘণ্টা ধরে)|for|since|until
+We slept ___ the journey. (যাত্রার সময়)|during|since|until
+Wait here ___ 5 p.m. (৫টা পর্যন্ত)|until|since|during
+It has rained ___ morning. (সকাল থেকে)|since|for|until`,
+C:`ভুল শুধরাও – He has worked here SINCE ten years. ঠিক: He has worked here ___ ten years.|for|until|during
+Nobody spoke ___ the film. (ফিল্ম চলার সময়)|during|since|until
+ভুল শুধরাও – I have known her FOR 2010. ঠিক: I have known her ___ 2010.|since|during|until
+The shop stays open ___ midnight. (মাঝরাত পর্যন্ত)|until|since|during
+They have played cricket ___ two hours. (দুই ঘণ্টা ধরে)|for|since|during`,
+T:`My uncle has lived abroad ___ 2018. (২০১৮ থেকে)|since|for|during
+We have waited ___ thirty minutes. (ত্রিশ মিনিট ধরে)|for|since|until
+The baby cried ___ the night. (রাতের সময়ে)|during|since|until
+Stay here ___ noon. (দুপুর পর্যন্ত)|until|since|during
+She has been ill ___ Monday. (সোমবার থেকে)|since|for|during
+He has been absent ___ a week. (এক সপ্তাহ ধরে)|for|since|during
+Please do not talk ___ the exam. (পরীক্ষা চলার সময়)|during|since|for
+The library is open ___ 8 p.m. (রাত ৮টা পর্যন্ত)|until|since|during
+ভুল শুধরাও – She has been here FOR Friday. ঠিক: She has been here ___ Friday.|since|during|until
+'কখন থেকে শুরু' বোঝাতে কোন শব্দ বসবে? ___|since|for|during`},
+{n:"TO / FROM",t:"TO ও FROM – দিকে ও থেকে",
+l:"to মানে গন্তব্যে বা কারও দিকে যাওয়া (go to school)। from মানে কোথা থেকে বা কার কাছ থেকে (come from Sylhet)। to = কোথায় যাচ্ছি, from = কোথা থেকে এসেছি। মনে রাখো: go home, come home — home-এর আগে to বসে না।",
+x:`I go to school every day.|আমি প্রতিদিন স্কুলে যাই।
+She walks to the market.|সে বাজারে হেঁটে যায়।
+He comes from Sylhet.|সে সিলেট থেকে আসে।
+This letter is from my uncle.|এই চিঠিটি আমার চাচার কাছ থেকে।
+We travel from Dhaka to Khulna.|আমরা ঢাকা থেকে খুলনা যাই।`,
+m:"ভুল: I go to home. ঠিক: I go home। home শব্দের আগে to বসে না।",
+k:"to = গন্তব্যের দিকে, from = শুরুর জায়গা থেকে।",
+P:`I go ___ school by bus. (স্কুলে)|to|from|at
+She is walking ___ the market. (বাজারে)|to|from|on
+He comes ___ Sylhet. (সিলেট থেকে)|from|to|in
+This gift is ___ my aunt. (খালার কাছ থেকে)|from|to|at
+The bus goes ___ Chattogram. (চট্টগ্রামে)|to|from|at`,
+C:`ভুল শুধরাও – He comes TO Rajshahi. (রাজশাহী থেকে) ঠিক: He comes ___ Rajshahi.|from|in|at
+We flew ___ Dhaka to Sylhet. (ঢাকা থেকে)|from|at|on
+ভুল শুধরাও – She is going FROM the hospital. (হাসপাতালে যাচ্ছে) ঠিক: She is going ___ the hospital.|to|on|at
+The letter is ___ my teacher. (শিক্ষকের কাছ থেকে)|from|to|at
+Walk ___ the door. (দরজার দিকে)|to|from|at`,
+T:`My father goes ___ the office every day. (অফিসে)|to|from|at
+Mina comes ___ Barishal. (বরিশাল থেকে)|from|to|in
+We walked ___ the river. (নদীর কাছে)|to|from|at
+He got a message ___ his friend. (বন্ধুর কাছ থেকে)|from|to|in
+The students run ___ the playground. (মাঠে)|to|from|of
+Give this book ___ Rina. (রিনাকে)|to|from|at
+This rice comes ___ the farm. (খামার থেকে)|from|to|at
+The bus is going ___ the airport. (বিমানবন্দরে)|to|from|at
+ভুল শুধরাও – She is TO Canada. (সে কানাডা থেকে এসেছে) ঠিক: She is ___ Canada.|from|at|on
+'গন্তব্য বা কোথায় যাচ্ছি' বোঝাতে কোন শব্দ? ___|to|from|at`},
+{n:"INTO / OUT OF",t:"INTO ও OUT OF – ভিতরে ঢোকা ও বের হওয়া",
+l:"into মানে বাইরে থেকে ভিতরে ঢোকা (গতি)। out of মানে ভিতর থেকে বাইরে আসা। in শুধু ভিতরে থাকা (অবস্থান) বোঝায়, আর into ঢোকার কাজ বোঝায়।",
+x:`The boy jumps into the pond.|ছেলেটি পুকুরে লাফ দিয়ে নামে।
+She puts the book into her bag.|সে বইটি ব্যাগের ভিতরে ঢোকায়।
+The cat runs into the room.|বিড়ালটি ঘরের ভিতরে দৌড়ে ঢোকে।
+He comes out of the house.|সে বাড়ি থেকে বের হয়।
+Take the money out of your pocket.|পকেট থেকে টাকা বের করো।`,
+m:"ভুল: The keys are into my bag. (শুধু থাকা) ঠিক: in my bag। into মানে ঢোকার কাজ, in মানে ভিতরে থাকা।",
+k:"into = বাইরে থেকে ভিতরে ঢোকা, out of = ভিতর থেকে বের হওয়া।",
+P:`The boy jumps ___ the pond. (পুকুরে নামা)|into|out of|at
+She puts the book ___ her bag. (ব্যাগের ভিতরে ঢোকানো)|into|out of|on
+He comes ___ the house. (বাড়ি থেকে বের হওয়া)|out of|into|at
+The cat runs ___ the room. (ঘরে ঢোকা)|into|out of|on
+Take the money ___ your pocket. (বের করা)|out of|into|on`,
+C:`ভুল শুধরাও – The keys are INTO my bag. (শুধু ভিতরে আছে) ঠিক: The keys are ___ my bag.|in|out of|on
+The birds fly ___ the nest. (বাসা থেকে বের হয়ে)|out of|into|at
+ভুল শুধরাও – The child ran OUT OF the classroom. (ক্লাসে ঢুকল) ঠিক: The child ran ___ the classroom.|into|from|on
+Pour the milk ___ the glass. (গ্লাসে ঢালো)|into|out of|from
+She stepped ___ the car. (গাড়ি থেকে নামল)|out of|into|at`,
+T:`The thief jumped ___ the window. (জানালা দিয়ে বাইরে)|out of|into|at
+Put your toys ___ the box. (বাক্সে রাখো)|into|out of|from
+He took a pen ___ his bag. (ব্যাগ থেকে বের করল)|out of|into|at
+The dog ran ___ the garden. (বাগানে ঢুকল)|into|out of|on
+Water is flowing ___ the tap. (কল থেকে বের হচ্ছে)|out of|into|in
+Walk ___ the shop and buy bread. (দোকানে ঢোকো)|into|out of|from
+The magician pulled a rabbit ___ a hat. (টুপি থেকে বের করল)|out of|into|on
+The kids ran ___ the school after class. (স্কুল থেকে বের হলো)|out of|into|in
+ভুল শুধরাও – The cat jumped OUT OF the box. (বাক্সে ঢুকল) ঠিক: The cat jumped ___ the box.|into|from|at
+'ভিতরে ঢোকার কাজ' বোঝাতে কোন শব্দ? ___|into|out of|at`},
+{n:"ONTO / OFF",t:"ONTO ও OFF – উপরে ওঠা ও নেমে যাওয়া",
+l:"onto মানে নিচ থেকে কিছুর উপরে ওঠা বা তোলা (গতি)। off মানে কিছুর উপর থেকে নেমে যাওয়া বা সরে যাওয়া। on শুধু উপরে থাকা (অবস্থান) বোঝায়।",
+x:`The cat jumps onto the table.|বিড়ালটি টেবিলের উপরে লাফ দিয়ে ওঠে।
+Put the book onto the shelf.|বইটি তাকের উপরে রাখো।
+He climbs onto the roof.|সে ছাদে উঠে।
+The ball rolled off the table.|বলটি টেবিল থেকে গড়িয়ে পড়ে গেল।
+Get off the bus here.|এখানে বাস থেকে নামো।`,
+m:"ভুল: The book is onto the table. (শুধু আছে) ঠিক: on the table। onto মানে উঠে যাওয়ার কাজ।",
+k:"onto = উপরে ওঠা, off = উপর থেকে নেমে যাওয়া।",
+P:`The cat jumps ___ the table. (টেবিলের উপরে উঠে)|onto|off|in
+He climbs ___ the roof. (ছাদে উঠে)|onto|off|into
+The ball rolled ___ the table. (টেবিল থেকে পড়ে গেল)|off|onto|in
+Get ___ the bus here. (বাস থেকে নামো)|off|onto|into
+The child stepped ___ the stage. (মঞ্চে উঠল)|onto|off|into`,
+C:`ভুল শুধরাও – The book is ONTO the table. (শুধু আছে) ঠিক: The book is ___ the table.|on|off|into
+Take your feet ___ the sofa. (সোফা থেকে নামাও)|off|onto|in
+ভুল শুধরাও – The cup fell ONTO the table. (টেবিল থেকে পড়ে গেল) ঠিক: The cup fell ___ the table.|off|in|into
+Lift the box ___ the shelf. (তাকের উপরে তুলে রাখো)|onto|off|into
+The cat is ___ the sofa now. (সোফা থেকে নেমে গেছে)|off|onto|into`,
+T:`The farmer climbed ___ the truck. (ট্রাকের উপরে উঠল)|onto|off|into
+The wind blew my hat ___ my head. (মাথা থেকে উড়ে গেল)|off|onto|into
+Keep ___ the grass. (ঘাসের উপর থেকে দূরে থাকো)|off|onto|into
+He jumped ___ his bicycle. (সাইকেলে উঠল)|onto|off|into
+The glass slipped ___ the table. (টেবিল থেকে পিছলে পড়ল)|off|onto|in
+Put the cake ___ a plate. (প্লেটের উপরে রাখো)|onto|off|into
+The man got ___ the bus. (বাস থেকে নামল)|off|onto|into
+The spider crawled ___ my arm. (আমার হাতের উপরে উঠল)|onto|off|into
+ভুল শুধরাও – The boy fell ONTO the bed. (বিছানা থেকে পড়ল) ঠিক: The boy fell ___ the bed.|off|in|into
+'উপরে ওঠার কাজ' বোঝাতে কোন শব্দ? ___|onto|off|at`},
+{n:"THROUGH / ACROSS",t:"THROUGH ও ACROSS – ভিতর দিয়ে ও এপার-ওপার",
+l:"through মানে কিছুর ভিতর দিয়ে যাওয়া (সুড়ঙ্গ, জঙ্গল, জানালা)। across মানে কোনো তলের এপার থেকে ওপারে যাওয়া (নদী, রাস্তা)।",
+x:`The train goes through the tunnel.|ট্রেন সুড়ঙ্গের ভিতর দিয়ে যায়।
+We walked through the forest.|আমরা জঙ্গলের ভিতর দিয়ে হাঁটলাম।
+She walked across the road.|সে রাস্তা পার হলো।
+He swam across the river.|সে সাঁতরে নদী পার হলো।
+Light comes through the window.|জানালা দিয়ে আলো আসে।`,
+m:"ভুল: He walked through the road. (রাস্তা পার হওয়া) ঠিক: across the road। ভিতর দিয়ে হলে through, এপার-ওপার হলে across।",
+k:"through = ভিতর দিয়ে, across = এপার থেকে ওপারে।",
+P:`The train goes ___ the tunnel. (সুড়ঙ্গের ভিতর দিয়ে)|through|across|at
+She walked ___ the road. (রাস্তা পার হয়ে)|across|through|at
+He swam ___ the river. (নদী পার হয়ে)|across|through|at
+We walked ___ the forest. (জঙ্গলের ভিতর দিয়ে)|through|across|at
+Light comes ___ the window. (জানালা দিয়ে)|through|across|at`,
+C:`ভুল শুধরাও – We sailed THROUGH the river. (নদী পার হলাম) ঠিক: We sailed ___ the river.|across|at|on
+The needle goes ___ the cloth. (কাপড়ের ভিতর দিয়ে)|through|across|at
+ভুল শুধরাও – The thief came ACROSS the window. (জানালা দিয়ে ঢুকল) ঠিক: The thief came ___ the window.|through|at|on
+A bridge is built ___ the river. (নদীর এপার-ওপার জুড়ে)|across|through|at
+The water flows ___ the pipe. (পাইপের ভিতর দিয়ে)|through|across|at`,
+T:`The bus goes ___ the long tunnel. (সুড়ঙ্গের ভিতর দিয়ে)|through|across|at
+Children walk ___ the road carefully. (রাস্তা পার হয়)|across|through|at
+The sun shines ___ the leaves. (পাতার ভিতর দিয়ে)|through|across|at
+The ferry takes people ___ the river. (নদীর এপার থেকে ওপারে)|across|through|at
+We drove ___ the dark forest. (জঙ্গলের ভিতর দিয়ে)|through|across|at
+Please look ___ the telescope. (দূরবীনের ভিতর দিয়ে)|through|across|at
+A rope hangs ___ the river from one tree to another. (এপার-ওপার)|across|through|at
+The thread went ___ the hole of the needle. (ছিদ্রের ভিতর দিয়ে)|through|across|at
+He walked ___ the crowd. (ভিড়ের ভিতর দিয়ে)|through|across|at
+ভুল শুধরাও – The cat went ACROSS the small hole. (গর্তের ভিতর দিয়ে) ঠিক: The cat went ___ the small hole.|through|at|on`},
+{n:"TOWARDS / ALONG / PAST",t:"TOWARDS, ALONG ও PAST",
+l:"towards মানে কোনো দিকের দিকে। along মানে রাস্তা বা নদীর ধার ধরে। past মানে পাশ দিয়ে পার হয়ে যাওয়া।",
+x:`The boy runs towards the gate.|ছেলেটি গেটের দিকে দৌড়ায়।
+We walk along the river.|আমরা নদীর ধার ধরে হাঁটি।
+The bus goes past the school.|বাসটি স্কুলের পাশ দিয়ে পার হয়ে যায়।
+She looked towards the sky.|সে আকাশের দিকে তাকাল।
+Trees grow along the road.|রাস্তার ধার ধরে গাছ জন্মায়।`,
+m:"ভুল: towards of the gate. ঠিক: towards the gate। towards-এর পরে of বসে না।",
+k:"towards = দিকে, along = ধার ধরে, past = পাশ দিয়ে পার হয়ে।",
+P:`The boy runs ___ the gate. (গেটের দিকে)|towards|along|past
+We walk ___ the river. (নদীর ধার ধরে)|along|towards|past
+The bus goes ___ the school. (স্কুলের পাশ দিয়ে পার হয়ে)|past|towards|along
+She looked ___ the sky. (আকাশের দিকে)|towards|past|along
+Trees grow ___ the road. (রাস্তার ধার ধরে)|along|towards|past`,
+C:`ভুল শুধরাও – He walked ALONG the shop without stopping. (দোকান পার হয়ে) ঠিক: He walked ___ the shop without stopping.|past|towards|at
+The ship sails ___ the coast. (উপকূল ধরে)|along|towards|past
+ভুল শুধরাও – The child ran PAST his mother. (মায়ের দিকে) ঠিক: The child ran ___ his mother.|towards|along|at
+Go ___ this road to reach the bank. (এই রাস্তা ধরে)|along|towards|past
+The car went ___ me quickly. (আমার পাশ দিয়ে দ্রুত পার হলো)|past|towards|along`,
+T:`The cat moves slowly ___ the mouse. (ইঁদুরের দিকে)|towards|past|along
+We walked ___ the beach. (সৈকত ধরে)|along|towards|past
+The train rushed ___ the station. (স্টেশন পার হয়ে)|past|towards|along
+He pointed ___ the mountain. (পাহাড়ের দিকে)|towards|past|along
+Flowers grow ___ the path. (পথের ধার ধরে)|along|towards|past
+She walked ___ the bakery and did not stop. (বেকারি পার হয়ে)|past|towards|along
+The plane flew ___ the north. (উত্তর দিকে)|towards|past|along
+The children walked ___ the canal. (খালের ধার ধরে)|along|towards|past
+ভুল শুধরাও – The bus went ALONG the hospital without stopping. (হাসপাতাল পার হয়ে) ঠিক: The bus went ___ the hospital without stopping.|past|towards|at
+'দিকে এগোনো' বোঝাতে কোন শব্দ? ___|towards|along|past`},
+{n:"BY / WITH",t:"BY ও WITH – দিয়ে ও সাথে",
+l:"by দিয়ে যানবাহন বা উপায় (by bus) এবং কে করেছে (written by Tagore) বোঝাই। with দিয়ে সঙ্গে থাকা বা কোনো জিনিস দিয়ে কাজ করা (with a pen) বোঝাই।",
+x:`I go to school by bus.|আমি বাসে করে স্কুলে যাই।
+This poem was written by Tagore.|এই কবিতাটি ঠাকুর লিখেছেন।
+She writes with a pen.|সে কলম দিয়ে লেখে।
+I live with my parents.|আমি বাবা-মায়ের সাথে থাকি।
+We cut the fruit with a knife.|আমরা ছুরি দিয়ে ফল কাটি।`,
+m:"ভুল: I go to school with bus. ঠিক: by bus। যানবাহনের আগে by বসে। কলম বা ছুরির মতো জিনিস দিয়ে কাজ হলে with।",
+k:"by = যানবাহন/কে করেছে, with = সাথে বা জিনিস দিয়ে।",
+P:`I go to school ___ bus. (বাসে করে)|by|with|at
+She writes ___ a pen. (কলম দিয়ে)|with|by|on
+This song was sung ___ Rina. (রিনা গেয়েছে)|by|with|at
+I live ___ my parents. (বাবা-মায়ের সাথে)|with|by|at
+We travel ___ train. (ট্রেনে করে)|by|with|at`,
+C:`ভুল শুধরাও – He came WITH rickshaw. (রিকশায় করে) ঠিক: He came ___ rickshaw.|by|at|to
+Cut the paper ___ scissors. (কাঁচি দিয়ে)|with|by|at
+ভুল শুধরাও – The book was written WITH my uncle. (চাচা লিখেছেন) ঠিক: The book was written ___ my uncle.|by|to|at
+She plays ___ her friends. (বন্ধুদের সাথে)|with|by|of
+We send letters ___ post. (ডাকযোগে)|by|with|at`,
+T:`My father goes to office ___ car. (গাড়িতে)|by|with|at
+The cake was made ___ my mother. (মা বানিয়েছেন)|by|with|at
+Eat rice ___ a spoon. (চামচ দিয়ে)|with|by|at
+He cleaned the board ___ a duster. (ডাস্টার দিয়ে)|with|by|at
+They went to Khulna ___ launch. (লঞ্চে)|by|with|at
+I talked ___ my teacher. (শিক্ষকের সাথে)|with|by|at
+The window was broken ___ the boys. (ছেলেরা ভেঙেছে)|by|with|at
+She drew the picture ___ colour pencils. (রঙ পেন্সিল দিয়ে)|with|by|at
+ভুল শুধরাও – I travel WITH plane. ঠিক: I travel ___ plane.|by|at|to
+'যানবাহনের আগে' কোন শব্দ বসবে? ___|by|with|at`},
+{n:"ABOUT / OF",t:"ABOUT ও OF – সম্পর্কে ও এর",
+l:"about মানে সম্পর্কে বা বিষয়ে (a story about a king)। of মানে এর/-র (the door of the room) এবং পরিমাণ বা অংশ (a glass of water, a piece of cake)।",
+x:`This is a book about birds.|এটি পাখি সম্পর্কে একটি বই।
+We talked about our holiday.|আমরা আমাদের ছুটি নিয়ে কথা বললাম।
+Dhaka is the capital of Bangladesh.|ঢাকা বাংলাদেশের রাজধানী।
+Please give me a glass of water.|আমাকে এক গ্লাস পানি দাও।
+He ate a piece of cake.|সে এক টুকরো কেক খেল।`,
+m:"ভুল: a cup about tea. ঠিক: a cup of tea। পরিমাণ বোঝাতে of, বিষয় বোঝাতে about।",
+k:"about = বিষয়/সম্পর্কে, of = এর/-র ও পরিমাণ।",
+P:`This is a book ___ birds. (পাখি সম্পর্কে)|about|of|at
+We talked ___ our holiday. (ছুটি নিয়ে)|about|at|to
+Dhaka is the capital ___ Bangladesh. (বাংলাদেশের)|of|about|at
+Please give me a glass ___ water. (এক গ্লাস)|of|about|at
+He ate a piece ___ cake. (এক টুকরো)|of|about|at`,
+C:`ভুল শুধরাও – I want a cup ABOUT tea. ঠিক: I want a cup ___ tea.|of|at|to
+She told us a story ___ a king. (একজন রাজা সম্পর্কে)|about|at|to
+ভুল শুধরাও – The door ABOUT the room is red. ঠিক: The door ___ the room is red.|of|at|to
+We are reading a poem ___ the rain. (বৃষ্টি সম্পর্কে)|about|at|to
+Give me a bottle ___ milk. (এক বোতল)|of|about|at`,
+T:`This film is ___ a brave boy. (এক সাহসী ছেলে সম্পর্কে)|about|at|to
+The name ___ my school is Alo School. (আমার স্কুলের নাম)|of|about|at
+Buy a kilo ___ rice. (এক কেজি)|of|about|at
+What do you know ___ space? (মহাকাশ সম্পর্কে)|about|at|to
+She drank a mug ___ coffee. (এক মগ)|of|about|at
+I read an article ___ health. (স্বাস্থ্য সম্পর্কে)|about|at|to
+The colour ___ the sky is blue. (আকাশের রং)|of|about|at
+Let's talk ___ your plan. (তোমার পরিকল্পনা নিয়ে)|about|at|to
+There is a bar ___ chocolate on the table. (এক টুকরো)|of|about|at
+ভুল শুধরাও – I drank a glass ABOUT juice. ঠিক: I drank a glass ___ juice.|of|at|to`},
+{n:"FOR / AGAINST",t:"FOR ও AGAINST – জন্য ও বিরুদ্ধে",
+l:"for মানে জন্য বা পক্ষে (a gift for you)। against মানে বিরুদ্ধে (fight against crime) অথবা ঠেস দিয়ে (against the wall)।",
+x:`This gift is for you.|এই উপহারটি তোমার জন্য।
+I bought a book for my sister.|আমি আমার বোনের জন্য একটি বই কিনেছি।
+Our team played against Rangpur.|আমাদের দল রংপুরের বিপক্ষে খেলল।
+The ladder is against the wall.|মইটি দেয়ালে ঠেস দেওয়া আছে।
+We fight against crime.|আমরা অপরাধের বিরুদ্ধে লড়ি।`,
+m:"ভুল: This gift is against you. ঠিক: for you। against মানে বিরুদ্ধে। উপহার বা উপকারের জন্য for।",
+k:"for = জন্য/পক্ষে, against = বিরুদ্ধে/ঠেস দিয়ে।",
+P:`This gift is ___ you. (তোমার জন্য)|for|against|at
+We played ___ Rangpur. (রংপুরের বিপক্ষে)|against|for|at
+The ladder is ___ the wall. (দেয়ালে ঠেস দেওয়া)|against|for|at
+I bought a pen ___ my brother. (ভাইয়ের জন্য)|for|against|at
+We must fight ___ crime. (অপরাধের বিরুদ্ধে)|against|for|at`,
+C:`ভুল শুধরাও – He made tea AGAINST his mother. (মায়ের জন্য) ঠিক: He made tea ___ his mother.|for|at|to
+The students voted ___ the new rule. (নতুন নিয়মের বিরুদ্ধে)|against|for|at
+ভুল শুধরাও – She leaned FOR the door. (দরজায় ঠেস দিয়ে) ঠিক: She leaned ___ the door.|against|at|to
+This medicine is ___ fever. (জ্বরের জন্য)|for|against|at
+The wind is ___ us today. (বাতাস আমাদের বিপক্ষে)|against|for|at`,
+T:`This bag is ___ my mother. (মায়ের জন্য)|for|against|at
+Bangladesh played ___ India. (ভারতের বিপক্ষে)|against|for|at
+The bike is ___ the tree. (গাছে ঠেস দেওয়া)|against|for|at
+Mina cooked dinner ___ the guests. (অতিথিদের জন্য)|for|against|at
+They are ___ cruelty to animals. (পশুর প্রতি নিষ্ঠুরতার বিরুদ্ধে)|against|for|at
+I am waiting ___ the bus. (বাসের জন্য)|for|against|at
+Put the mirror ___ the wall. (দেয়ালে ঠেস দিয়ে)|against|for|at
+He gave up his seat ___ an old man. (বৃদ্ধের জন্য)|for|against|at
+ভুল শুধরাও – This song is AGAINST children. (শিশুদের জন্য) ঠিক: This song is ___ children.|for|at|to
+'বিরুদ্ধে' বোঝাতে কোন শব্দ বসবে? ___|against|for|at`},
+{n:"REVISION",t:"FROM, SINCE, DURING ও UNTIL – রিভিশন",
+l:"from মানে থেকে (from 9 to 5)। since মানে শুরু থেকে এখন পর্যন্ত (since 2020, সাধারণত have/has-এর সাথে)। during মানে চলাকালীন। until মানে পর্যন্ত।",
+x:`The shop is open from 9 a.m. to 9 p.m.|দোকান সকাল ৯টা থেকে রাত ৯টা পর্যন্ত খোলা।
+I have known him since childhood.|আমি তাকে ছোটবেলা থেকে চিনি।
+She slept during the film.|সে ফিল্ম চলার সময় ঘুমিয়ে পড়ল।
+We stayed there until Sunday.|আমরা রবিবার পর্যন্ত সেখানে থাকলাম।
+The class runs from Sunday to Thursday.|ক্লাস রবিবার থেকে বৃহস্পতিবার চলে।`,
+m:"ভুল: I have lived here from 2018. ঠিক: since 2018। have/has থাকলে সাধারণত since বসে।",
+k:"from = থেকে (from…to), since = শুরু থেকে এখন পর্যন্ত, during = চলাকালীন, until = পর্যন্ত।",
+P:`The shop is open ___ 9 a.m. to 9 p.m. (সকাল ৯টা থেকে)|from|since|during
+I have known him ___ childhood. (ছোটবেলা থেকে)|since|from|until
+She slept ___ the film. (ফিল্ম চলার সময়)|during|since|from
+We stayed there ___ Sunday. (রবিবার পর্যন্ত)|until|since|during
+The class runs ___ Sunday to Thursday. (রবিবার থেকে)|from|since|until`,
+C:`ভুল শুধরাও – She has been sick FROM Tuesday. ঠিক: She has been sick ___ Tuesday.|since|during|until
+The exam runs ___ 10 a.m. to 1 p.m. (সকাল ১০টা থেকে)|from|since|during
+ভুল শুধরাও – He sang DURING midnight. (মাঝরাত পর্যন্ত) ঠিক: He sang ___ midnight.|until|since|from
+It rained ___ the match. (খেলা চলার সময়)|during|since|until
+I will wait ___ 6 o'clock. (৬টা পর্যন্ত)|until|since|during`,
+T:`We have not met ___ last year. (গত বছর থেকে)|since|from|until
+The office works ___ Saturday to Wednesday. (শনিবার থেকে)|from|since|during
+Don't use phones ___ the lesson. (পড়া চলার সময়)|during|since|until
+Stay in bed ___ noon. (দুপুর পর্যন্ত)|until|since|during
+It has been cold ___ December. (ডিসেম্বর থেকে)|since|from|during
+The guests came ___ the dinner. (খাবার চলার সময়)|during|since|from
+He has lived in Dhaka ___ 2010. (২০১০ থেকে)|since|from|during
+The festival lasts ___ Friday to Sunday. (শুক্রবার থেকে)|from|since|during
+She worked hard ___ the whole year. (পুরো বছর জুড়ে)|during|since|until
+'চলাকালীন সময়' বোঝাতে কোন শব্দ বসবে? ___|during|since|until`},
+{n:"COMBINATIONS",t:"সাধারণ Preposition শব্দজোড়",
+l:"কিছু শব্দজোড় নিয়ম দিয়ে নয়, এক সাথে মুখস্থ রাখতে হয়: at home (বাড়িতে), at school (স্কুলে), on time (ঠিক সময়ে), by mistake (ভুল করে), on foot (হেঁটে), at last (অবশেষে), by heart (মুখস্থ), in a hurry (তাড়াহুড়ায়)।",
+x:`I am at home now.|আমি এখন বাড়িতে।
+The bus came on time.|বাসটি ঠিক সময়ে এসেছিল।
+I took your pen by mistake.|আমি ভুল করে তোমার কলম নিয়েছি।
+We went to the market on foot.|আমরা হেঁটে বাজারে গেলাম।
+At last, the rain stopped.|অবশেষে বৃষ্টি থামল।`,
+m:"ভুল: I go to school by foot. ঠিক: on foot। হেঁটে গেলে on foot, কিন্তু যানবাহনে গেলে by bus।",
+k:"এগুলো স্থির শব্দজোড়: at home, on time, by mistake, on foot, at last।",
+P:`Mother is ___ home now. (বাড়িতে)|at|on|by
+The train arrived ___ time. (ঠিক সময়ে)|on|at|by
+I opened your bag ___ mistake. (ভুল করে)|by|on|at
+We went to the park ___ foot. (হেঁটে)|on|by|at
+___ last, we reached the village. (অবশেষে)|At|On|By`,
+C:`ভুল শুধরাও – He goes to school BY foot. ঠিক: He goes to school ___ foot.|on|at|to
+The students are ___ school now. (স্কুলে)|at|on|by
+ভুল শুধরাও – She came AT time to the meeting. (ঠিক সময়ে) ঠিক: She came ___ time to the meeting.|on|at|by
+Sorry, I sent the message ___ mistake. (ভুল করে)|by|on|at
+Say the poem ___ heart. (মুখস্থ)|by|on|at`,
+T:`We are ___ home on Friday. (বাড়িতে)|at|on|by
+The teacher came ___ time. (ঠিক সময়ে)|on|at|by
+He wore my shoes ___ mistake. (ভুল করে)|by|on|at
+The old man goes to the mosque ___ foot. (হেঁটে)|on|by|at
+___ last, I found my keys. (অবশেষে)|At|On|By
+Rina is ___ school today. (স্কুলে)|at|on|by
+Learn the poem ___ heart. (মুখস্থ)|by|on|at
+He left ___ a hurry. (তাড়াহুড়া করে)|in|on|by
+ভুল শুধরাও – I took the wrong bus AT mistake. ঠিক: I took the wrong bus ___ mistake.|by|on|to
+We are ___ holiday now. (ছুটিতে)|on|in|by`},
+{n:"DAILY",t:"দৈনন্দিন বাক্যে Preposition",
+l:"এখানে আগে শেখা সব preposition দৈনন্দিন বাক্যে অনুশীলন করব। বাক্য পড়ে ভাবো: সময়? জায়গা? যানবাহন? দিক?",
+x:`I wake up at 6 o'clock.|আমি ৬টায় ঘুম থেকে উঠি।
+We have a test on Sunday.|আমাদের রবিবার পরীক্ষা আছে।
+She puts her books in the bag.|সে বইগুলো ব্যাগে রাখে।
+They go to school by bus.|তারা বাসে করে স্কুলে যায়।
+The cat is sleeping under the bed.|বিড়ালটি খাটের নিচে ঘুমাচ্ছে।`,
+m:"ভুল: I go to school in bus. ঠিক: by bus। সময় হলে at/on/in, জায়গা হলে in/on/under, যানবাহনে by, দিক হলে to।",
+k:"সময়: at/on/in, জায়গা: in/on/under, যানবাহন: by, দিক: to।",
+P:`My class starts ___ 8 o'clock.|at|on|in
+We go to the market ___ foot.|on|by|at
+The coins are ___ my pocket.|in|on|at
+I will meet you ___ Friday.|on|in|at
+She lives ___ Chattogram.|in|on|at`,
+C:`ভুল শুধরাও – I was born ON 2010. ঠিক: I was born ___ 2010.|in|at|to
+Mina is waiting ___ the bus. (বাসের জন্য)|for|at|to
+ভুল শুধরাও – He goes to school WITH rickshaw. ঠিক: He goes to school ___ rickshaw.|by|at|to
+The ball is ___ the table. (টেবিলের নিচে)|under|on|at
+We walked ___ the river. (নদীর ধার ধরে)|along|at|on`,
+T:`The train leaves ___ 9:15.|at|in|on
+My birthday is ___ August.|in|on|at
+Put the book ___ the shelf. (তাকের উপরে)|on|in|at
+He came ___ Sylhet yesterday. (সিলেট থেকে)|from|to|in
+The students sit ___ the teacher. (শিক্ষকের সামনে)|in front of|behind|under
+Don't talk ___ the exam. (পরীক্ষা চলাকালীন)|during|since|until
+I have lived here ___ 2019.|since|for|during
+The bird flew ___ the cage. (খাঁচা থেকে বের হলো)|out of|into|at
+She drew the line ___ a ruler. (রুলার দিয়ে)|with|by|at
+ভুল শুধরাও – I have a gift FROM you. (তোমার জন্য) ঠিক: I have a gift ___ you.|for|at|on`},
+{n:"VERB+PREP",t:"ক্রিয়া + Preposition",
+l:"কিছু ক্রিয়ার সাথে নির্দিষ্ট preposition বসে, মুখস্থ রাখতে হয়: look at (তাকানো), listen to (শোনা), wait for (অপেক্ষা), depend on (নির্ভর), believe in (বিশ্বাস), laugh at (হাসা), ask for (চাওয়া), belong to (-র অধিকারে)।",
+x:`Look at the blackboard.|বোর্ডের দিকে তাকাও।
+Listen to the teacher.|শিক্ষকের কথা শোনো।
+We are waiting for the bus.|আমরা বাসের জন্য অপেক্ষা করছি।
+It depends on the weather.|এটা আবহাওয়ার উপর নির্ভর করে।
+This pen belongs to me.|এই কলমটি আমার।`,
+m:"ভুল: Listen me. ঠিক: Listen to me। listen-এর পরে to ভুলে যেও না। ক্রিয়ার সাথে preposition একসাথে মুখস্থ করো।",
+k:"look at, listen to, wait for, depend on, belong to — ক্রিয়ার সাথে preposition মুখস্থ।",
+P:`Please look ___ the picture. (ছবির দিকে)|at|to|for
+Listen ___ the song carefully.|to|at|on
+We are waiting ___ the teacher.|for|to|at
+Success depends ___ hard work.|on|at|to
+This bag belongs ___ Rina.|to|at|of`,
+C:`ভুল শুধরাও – He is waiting TO his friend. ঠিক: He is waiting ___ his friend.|for|at|on
+Don't laugh ___ others.|at|to|for
+ভুল শুধরাও – She looked FOR the sky. (আকাশের দিকে তাকাল) ঠিক: She looked ___ the sky.|at|to|on
+I believe ___ you. (তোমার উপর বিশ্বাস রাখি)|in|at|for
+Please ask ___ help if you need it.|for|at|to`,
+T:`The children are looking ___ the stars. (তারার দিকে)|at|to|of
+Listen ___ the news.|to|at|for
+She is waiting ___ a call.|for|at|to
+Everything depends ___ you.|on|at|to
+This house belongs ___ my uncle.|to|at|of
+They laughed ___ his joke.|at|to|for
+Do you believe ___ ghosts?|in|at|on
+He asked ___ a glass of water.|for|at|to
+Please look ___ the camera.|at|to|for
+ভুল শুধরাও – I listen AT music. ঠিক: I listen ___ music.|to|for|on`},
+{n:"ADJ+PREP",t:"বিশেষণ + Preposition",
+l:"কিছু বিশেষণের (adjective) সাথেও নির্দিষ্ট preposition বসে: afraid of (ভীত), good at (দক্ষ), interested in (আগ্রহী), proud of (গর্বিত), full of (পূর্ণ), different from (আলাদা), famous for (বিখ্যাত)।",
+x:`She is afraid of dogs.|সে কুকুরকে ভয় পায়।
+He is good at maths.|সে অংকে ভালো।
+I am interested in music.|আমি গানে আগ্রহী।
+The glass is full of water.|গ্লাসটি পানিতে ভরা।
+Bangladesh is famous for its rivers.|বাংলাদেশ নদীর জন্য বিখ্যাত।`,
+m:"ভুল: I am afraid from snakes. ঠিক: afraid of। বিশেষণের সাথে কোন preposition বসবে তা মুখস্থ রাখতে হয়।",
+k:"afraid of, good at, interested in, full of, famous for — বিশেষণের সাথে preposition মুখস্থ।",
+P:`She is afraid ___ dogs.|of|from|at
+He is good ___ maths.|at|of|to
+I am interested ___ music.|in|at|of
+The glass is full ___ water.|of|to|at
+Bangladesh is famous ___ its rivers.|for|of|at`,
+C:`ভুল শুধরাও – I am afraid FROM snakes. ঠিক: I am afraid ___ snakes.|of|at|for
+She is proud ___ her son.|of|at|for
+ভুল শুধরাও – He is interested ON cricket. ঠিক: He is interested ___ cricket.|in|at|for
+Mina is good ___ singing.|at|of|to
+The sky is full ___ stars.|of|to|at`,
+T:`He is angry ___ his friend. (বন্ধুর উপর)|with|of|in
+She is tired ___ waiting. (অপেক্ষা করে ক্লান্ত)|of|at|in
+My pen is different ___ yours.|from|of|in
+Be kind ___ animals.|to|of|at
+The students are ready ___ the exam.|for|of|at
+Rina is worried ___ her exam.|about|of|at
+She is good ___ drawing.|at|of|to
+The room is full ___ people.|of|to|at
+He is famous ___ his kindness.|for|of|at
+ভুল শুধরাও – We are proud IN our country. ঠিক: We are proud ___ our country.|of|at|for`},
+{n:"STORY",t:"গল্পভিত্তিক চ্যালেঞ্জ",
+l:"এখানে রিনার একটি ছোট গল্পের বাক্য দিয়ে সব preposition অনুশীলন করব। রিনা ভোরে ওঠে, বাসে করে স্কুলে যায়, শিক্ষকের কথা শোনে আর বিকেলে বাড়ি ফেরে।",
+x:`Rina wakes up at 6 o'clock.|রিনা ৬টায় ঘুম থেকে ওঠে।
+She puts her books in her bag.|সে বইগুলো ব্যাগে রাখে।
+She goes to school by bus.|সে বাসে করে স্কুলে যায়।
+She listens to her teacher.|সে শিক্ষকের কথা শোনে।
+After school, she walks home.|স্কুলের পরে সে হেঁটে বাড়ি ফেরে।`,
+m:"ভুল: She goes to school with bus. ঠিক: by bus। প্রতিটি বাক্যে ভাবো: সময়, জায়গা, উপায় না দিক?",
+k:"গল্পে সময়ে at/on/in, জায়গায় in/on, যানবাহনে by, দিকে to।",
+P:`Rina wakes up ___ 6 o'clock.|at|on|in
+She puts her books ___ her bag.|in|on|at
+She goes to school ___ bus.|by|with|at
+At school, she sits ___ her friend Mina. (মিনার পাশে)|next to|above|under
+She listens ___ her teacher.|to|at|for`,
+C:`ভুল শুধরাও – Rina was born ON 2012. ঠিক: Rina was born ___ 2012.|in|at|to
+Her school is ___ her house. (বাড়ি থেকে দূরে)|far from|near|beside
+The class runs ___ 8 a.m. to 1 p.m.|from|since|during
+ভুল শুধরাও – She is afraid FROM dogs on the road. ঠিক: She is afraid ___ dogs on the road.|of|at|for
+At noon, she eats lunch ___ her friends. (বন্ধুদের সাথে)|with|by|at`,
+T:`She waits ___ the bus at the bus stop. (বাসের জন্য)|for|at|to
+The bus goes ___ a long tunnel. (সুড়ঙ্গের ভিতর দিয়ে)|through|across|at
+In class, she looks ___ the board. (বোর্ডের দিকে)|at|to|for
+She is good ___ English.|at|of|to
+There is a clock ___ the wall.|on|in|at
+She kicks the ball ___ the goal. (গোলের দিকে)|towards|along|past
+Her mother is proud ___ her.|of|at|for
+She reaches home ___ 5 p.m.|at|in|on
+___ dinner, she does her homework. (রাতের খাবারের আগে)|Before|After|At
+She studies ___ 9 p.m. (রাত ৯টা পর্যন্ত)|until|since|during`},
+{n:"EXAM",t:"চূড়ান্ত পরীক্ষা (৩০টি প্রশ্ন)",exam:true,l:"",x:"",m:"",k:"",P:"",C:"",T:""}
+];
+const WORLDS=[["🌳","ওয়ার্ল্ড ১ – Basic Positions"],["🏙️","ওয়ার্ল্ড ২ – Places and Relationships"],["⏰","ওয়ার্ল্ড ৩ – Time Prepositions"],["🧭","ওয়ার্ল্ড ৪ – Movement and Direction"],["🤝","ওয়ার্ল্ড ৫ – Everyday Relationships"],["🏆","ওয়ার্ল্ড ৬ – Mastery Adventure"]];
+const TOTAL=30;
+function coverage(){const m=[];for(let w=0;w<6;w++){const n=LV.filter((_,i)=>Math.floor(i/5)===w).length;if(n<5)m.push(`ওয়ার্ল্ড ${w+1}: ${n}/5`)}return `পাঠ্য ডেটা: ${LV.length}/${TOTAL} লেভেল।`+(m.length?" অসম্পূর্ণ: "+m.join(", "):" সব ওয়ার্ল্ড সম্পূর্ণ।")}
+function worldCard(w,wi){const ids=[0,1,2,3,4].map(k=>wi*5+k).filter(i=>i<LV.length),n=ids.filter(i=>S.done[i]).length;
+ return h("div",{c:"card"},h("h2",0,`${w[0]} ${w[1]} (${n}/5)`),
+  ids.length?ids.map(i=>h("button",{c:"node "+(S.done[i]?"ok":"s"),disabled:unlocked(i)?null:"",on:()=>lmenu(i)},`${unlocked(i)?"":"🔒 "}লেভেল ${i+1}: ${LV[i].t} ${"⭐".repeat(stars(i))}`)):h("p",0,"🚧 এই ওয়ার্ল্ডের লেভেলগুলো এখনো যোগ হয়নি। আগের ওয়ার্ল্ড শেষ করে অপেক্ষা করো।"),
+  ids.length===5&&n===5?h("b",0,"✅ ওয়ার্ল্ড সম্পূর্ণ!"):"")}
+/* ---------- STATE & SAVE ---------- */
+const KEY="prepAdventure_v1",$=document.getElementById("app");
+const DEF=()=>({ch:"🦊",cd:0,xp:0,co:0,ok:0,bad:0,done:{},sc:{},stg:{},mi:[]});
+function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&typeof j==="object")return Object.assign(DEF(),j)}catch(e){}return DEF()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let S=load();
+/* ---------- HELPERS ---------- */
+function h(t,a,...k){const e=document.createElement(t);for(const x in a||{}){if(a[x]==null)continue;if(x==="on")e.onclick=a[x];else if(x==="c")e.className=a[x];else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c instanceof Node?c:String(c)));return e}
+function show(...n){$.replaceChildren(...n);window.scrollTo(0,0)}
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const parse=s=>s.trim().split("\n").map(l=>{const p=l.split("|");return{s:p[0],a:p[1],w:[p[2],p[3]]}});
+const unlocked=i=>i===0||!!S.done[i-1];
+const stars=i=>{const p=S.sc[i]||0;return p>=100?3:p>=90?2:p>=80?1:0};
+const pool=()=>LV.flatMap((L,i)=>unlocked(i)&&!L.exam?["P","C","T"].flatMap(m=>parse(L[m]).map(q=>({...q,k:L.k}))):[]);
+const stg=(i,k)=>!!(S.stg[i]&&S.stg[i][k]);
+const home=()=>h("button",{c:"s",on:dash},"🏠 হোম");
+function validate(){const e=[],G=new Set();
+ if(LV.length!==TOTAL)e.push(`মোট লেভেল ${LV.length}টি, ঠিক ${TOTAL}টি হওয়া উচিত`);
+ for(let w=0;w<6;w++){const n=LV.filter((_,i)=>Math.floor(i/5)===w).length;if(n!==5)e.push(`ওয়ার্ল্ড ${w+1}-এ ${n}টি লেভেল, ৫টি হওয়া উচিত`)}
+ LV.forEach((L,i)=>{if(L.exam){if(i!==TOTAL-1)e.push(`Level ${i+1}: পরীক্ষা শেষ লেভেলে থাকতে হবে`);return}
+  [["P",5],["C",5],["T",10]].forEach(([m,n])=>{if(typeof L[m]!=="string"){e.push(`Level ${i+1} ${m}: প্রশ্নের তালিকা নেই`);return}
+   const Q=parse(L[m]);if(Q.length<n)e.push(`Level ${i+1} ${m}: প্রশ্ন কম`);const seen=new Set();
+   Q.forEach((q,j)=>{if(!q.s||!q.s.includes("___")||!q.a||!q.w[0]||!q.w[1]||q.w[0]===q.w[1]||q.w.includes(q.a)||seen.has(q.s))e.push(`Level ${i+1} ${m} #${j+1}: ডেটা ভুল`);if(G.has(q.s))e.push(`Level ${i+1} ${m} #${j+1}: অন্য লেভেলে একই প্রশ্ন আছে`);G.add(q.s);seen.add(q.s)})});
+  if(typeof L.x!=="string"||L.x.trim().split("\n").length<5)e.push(`Level ${i+1}: উদাহরণ কম`)});
+ try{const x=examQ();if(x.length!==30||new Set(x.map(q=>q.s)).size!==30)e.push("চূড়ান্ত পরীক্ষায় ৩০টি আলাদা প্রশ্ন তৈরি হয়নি")}catch(err){e.push("চূড়ান্ত পরীক্ষা তৈরিতে সমস্যা: "+err.message)}
+ return e}
+/* ---------- SCREENS ---------- */
+function welcome(){show(h("div",{c:"card c"},h("span",{c:"big"},"🌍"),h("h1",0,"PREPOSITION ADVENTURE"),h("p",0,"The World of Prepositions"),h("p",0,"সহজ বাংলায় ইংরেজি Preposition শেখার অ্যাডভেঞ্চার!"),h("button",{on:()=>S.cd?dash():chars()},"▶ খেলা শুরু করো")))}
+function chars(){show(h("div",{c:"card c"},h("h2",0,"তোমার চরিত্র বেছে নাও"),h("div",{c:"row"},["🦊","🐼","🐯","🐸"].map(c=>h("button",{"aria-label":"চরিত্র "+c,style:"font-size:42px;background:#eaf0ff",on:()=>{S.ch=c;S.cd=1;save();dash()}},c))),h("button",{c:"s",on:welcome},"⬅ পেছনে")))}
+function dash(){
+ const done=LV.filter((_,i)=>S.done[i]).length,sum=LV.reduce((a,_,i)=>a+stars(i),0);
+ show(h("div",{c:"card"},h("div",{c:"row"},h("span",{style:"font-size:44px"},S.ch),h("b",0,`⭐ ${sum}   🪙 ${S.co}   ✨ ${S.xp} XP`)),
+  h("p",0,`শেষ করা লেভেল: ${done}/${TOTAL}`),h("div",{c:"bar",role:"progressbar","aria-valuenow":done,"aria-valuemax":TOTAL},h("i",{style:`width:${done/TOTAL*100}%`}))),
+  ...WORLDS.map(worldCard),
+  h("div",{c:"card"},h("p",0,"পরের লেভেল খুলতে আগের লেভেলের টেস্টে ৮০% বা তার বেশি পেতে হবে।")),
+  h("div",{c:"card row"},h("button",{c:"ok",on:()=>quiz(-1,"G")},"🎮 Find the Preposition"),h("button",{c:"ok",on:detective},"🔎 Picture Detective"),h("button",{c:"ok",on:builder},"🧩 Sentence Builder"),S.done[TOTAL-1]?h("button",{c:"ok",on:cert},"🎓 সার্টিফিকেট"):"",h("button",{on:mist},"📒 ভুলের খাতা"),h("button",{on:stats},"📊 পরিসংখ্যান"),h("button",{on:settings},"⚙ সেটিংস"),h("button",{c:"s",on:welcome},"👋 শুরুর পাতা")))}
+function lmenu(i){if(LV[i].exam)return examMenu(i);const L=LV[i],l=stg(i,"l"),p=stg(i,"P"),c=stg(i,"C"),b=(t,on,ok,lock)=>h("button",{c:"node "+(ok?"ok":""),disabled:lock?"":null,on},(ok?"✔ ":lock?"🔒 ":"")+t);
+ show(h("div",{c:"card"},h("h2",0,`লেভেল ${i+1}: ${L.t}`),h("p",0,"ধাপে ধাপে শেষ করো। সব ধাপ শেষ হলে টেস্ট খুলবে।"),
+  b("A. শেখো (Learn)",()=>learn(i),l,false),b("B. অনুশীলন (Practice)",()=>quiz(i,"P"),p,!l),b("C. চ্যালেঞ্জ (Challenge)",()=>quiz(i,"C"),c,!p),b("D. লেভেল টেস্ট (১০টি প্রশ্ন)",()=>quiz(i,"T"),S.done[i],!(l&&p&&c)),
+  h("p",0,S.sc[i]!=null?`সেরা স্কোর: ${S.sc[i]}%`:""),h("button",{c:"s",on:dash},"⬅ পেছনে"),home()))}
+function learn(i){const L=LV[i];show(h("div",{c:"card"},h("h2",0,L.t),h("p",0,L.l),h("h3",0,"উদাহরণ"),
+  L.x.trim().split("\n").map(r=>{const p=r.split("|");return h("div",{c:"ex"},h("b",0,p[0]),h("br"),p[1])}),
+  h("h3",0,"⚠ সাধারণ ভুল"),h("p",0,L.m),
+  h("button",{c:"ok",on:()=>{(S.stg[i]=S.stg[i]||{}).l=1;save();lmenu(i)}},"বুঝেছি ✔"),h("button",{c:"s",on:()=>lmenu(i)},"⬅ পেছনে"),home()))}
+function quiz(i,m){
+ const G=m==="G",L=G?{k:""}:LV[i],Q=G?sh(pool()).slice(0,8):m==="X"?examQ():sh(parse(L[m])),name={P:"অনুশীলন",C:"চ্যালেঞ্জ",T:"লেভেল টেস্ট",X:"🎓 চূড়ান্ত পরীক্ষা",G:"🎮 Find the Preposition"}[m];let q=0,good=0;const wrong=[];
+ function step(){
+  if(q>=Q.length)return fin();
+  const c=Q[q],full=c.s.replace("___",c.a),kk=c.k||L.k;let first=true,answered=false;
+  const fb=h("div"),nxt=h("button",{c:"ok",on:()=>{q++;step()}},q+1<Q.length?"পরের প্রশ্ন ➜":"শেষ করো ✔");nxt.hidden=true;
+  const bs=sh([c.a,...c.w]).map(t=>{const b=h("button",{c:"opt",on:()=>{
+    if(answered)return;
+    if(t===c.a){answered=true;b.classList.add("c1");if(first){good++;S.ok++}
+      fb.className="fb";fb.textContent=`✔ সঠিক! ${full} — ${kk}`;bs.forEach(x=>x.disabled=true);nxt.hidden=false;nxt.focus()}
+    else{b.classList.add("w1");b.disabled=true;
+      if(first){first=false;S.bad++;wrong.push({s:full,k:kk});S.mi=[{s:full,k:kk},...S.mi.filter(z=>z.s!==full)].slice(0,60)}
+      fb.className="fb bad";
+      if(m==="T"||m==="X"){answered=true;fb.textContent=`✘ ভুল। সঠিক উত্তর: ${full} — ${kk}`;bs.forEach(x=>{x.disabled=true;if(x.dataset.v===c.a)x.classList.add("c1")});nxt.hidden=false;nxt.focus()}
+      else fb.textContent=`✘ ভুল হয়েছে। ${kk} আবার চেষ্টা করো।`}
+    save()}},t);b.dataset.v=t;return b});
+  show(h("div",{c:"card"},h("p",0,`${name} • প্রশ্ন ${q+1}/${Q.length}`),h("div",{c:"bar"},h("i",{style:`width:${q/Q.length*100}%`})),h("div",{c:"q"},c.s),bs,fb,nxt,
+   h("div",0,h("button",{c:"s",on:()=>G?dash():lmenu(i)},"⬅ বন্ধ করো"))))}
+ function fin(){
+  if(G)return show(h("div",{c:"card c"},h("span",{c:"big"},"🎉"),h("h2",0,`গেম শেষ! ${good}/${Q.length}`),h("button",{c:"ok",on:()=>quiz(-1,"G")},"🔁 আবার খেলো"),home()));
+  if(m!=="T"&&m!=="X"){(S.stg[i]=S.stg[i]||{})[m]=1;save();
+   return show(h("div",{c:"card c"},h("span",{c:"big"},"🎉"),h("h2",0,`${name} শেষ!`),h("p",0,`প্রথমবারেই সঠিক: ${good}/${Q.length}`),h("button",{c:"ok",on:()=>lmenu(i)},"চালিয়ে যাও ➜"),home()))}
+  const pct=Math.round(good/Q.length*100),pass=pct>=80;
+  if(S.sc[i]==null||pct>S.sc[i])S.sc[i]=pct;
+  if(pass&&!S.done[i]){S.done[i]=1;S.xp+=50+good*10;S.co+=20+good*5}
+  save();
+  show(h("div",{c:"card c"},h("span",{c:"big"},pass?"🏆":"💪"),h("h2",0,`স্কোর: ${good}/${Q.length} (${pct}%)`),h("p",0,`✔ সঠিক: ${good}  ✘ ভুল: ${Q.length-good}`),
+   h("p",0,pass?`অভিনন্দন! তুমি পাস করেছ। ⭐ ${"⭐".repeat(stars(i))}`:"পাস করতে ৮০% লাগে। ভুলগুলো দেখে আবার চেষ্টা করো।")),
+   wrong.length?h("div",{c:"card"},h("h3",0,"যেগুলো ভুল হয়েছিল"),wrong.map(w=>h("div",{c:"ex"},h("b",0,w.s),h("br"),w.k))):"",
+   h("div",{c:"card row"},h("button",{c:"no",on:()=>quiz(i,m==="X"?"X":"T")},"🔁 আবার টেস্ট"),m==="X"?"":h("button",{c:"s",on:()=>learn(i)},"📖 আবার শেখো"),
+    pass&&m==="X"?h("button",{c:"ok",on:cert},"🎓 সার্টিফিকেট দেখো"):"",pass&&i+1<LV.length?h("button",{c:"ok",on:()=>lmenu(i+1)},"পরের লেভেল ➜"):"",pass&&(i+1)%5===0?h("b",0,`🎊 ${WORLDS[Math.floor(i/5)][1].split(" – ")[0]} সম্পূর্ণ!`):"",home()))}
+ step()}
+const SC=[["table",[["The book is","📖"],["The cat is","🐱"],["The lamp is","💡"],["The bag is","🎒"]]],["bed",[["The teddy bear is","🧸"],["The shoes are","👟"],["The picture is","🖼️"],["The dog is","🐶"]]],["chair",[["The hat is","🎩"],["The ball is","⚽"],["The clock is","🕐"],["The bird is","🐦"]]]];
+function detective(){
+ const sc=SC[Math.floor(Math.random()*SC.length)],f=sc[0],P=["on","under","above","beside"],XY=[[50,40],[50,74],[50,8],[86,70]],Q=sh(sc[1].map((o,i)=>({o,i})));let q=0,good=0;
+ function step(){
+  if(q>=Q.length){save();return show(h("div",{c:"card c"},h("span",{c:"big"},"🔎"),h("h2",0,`Picture Detective শেষ! ${good}/${Q.length}`),h("button",{c:"ok",on:detective},"🔁 আবার খেলো"),home()))}
+  const o=Q[q].o,i=Q[q].i,ans=P[i],full=`${o[0]} ${ans} the ${f}.`;let first=true,done=false;
+  const scene=h("div",{c:"scene",role:"img","aria-label":"একটি ছবি: "+f},h("i",{c:"slab"}),h("i",{c:"leg l1"}),h("i",{c:"leg l2"}),sc[1].map((z,j)=>h("span",{c:"ob"+(j===i?" hl":""),style:`left:${XY[j][0]}%;top:${XY[j][1]}%`},z[1])));
+  const fb=h("div"),nxt=h("button",{c:"ok",on:()=>{q++;step()}},q+1<Q.length?"পরের প্রশ্ন ➜":"শেষ করো ✔");nxt.hidden=true;
+  const bs=sh([ans,...sh(P.filter(x=>x!==ans)).slice(0,2)]).map(t=>h("button",{c:"opt",on:function(){
+   if(done)return;
+   if(t===ans){done=true;if(first){good++;S.ok++}this.classList.add("c1");fb.className="fb";fb.textContent=`✔ সঠিক! ${full} ছবিতে জ্বলজ্বল করা জিনিসটির অবস্থান দেখো।`;bs.forEach(x=>x.disabled=true);nxt.hidden=false;nxt.focus()}
+   else{this.classList.add("w1");this.disabled=true;if(first){first=false;S.bad++;S.mi=[{s:full,k:"ছবির অবস্থান দেখে preposition বাছো।"},...S.mi.filter(z=>z.s!==full)].slice(0,60)}fb.className="fb bad";fb.textContent="✘ ভুল। ছবিটি ভালো করে দেখে আবার চেষ্টা করো।"}
+   save()}},t));
+  show(h("div",{c:"card"},h("h2",0,"🔎 Picture Detective"),h("p",0,`প্রশ্ন ${q+1}/${Q.length} — জ্বলজ্বল করা জিনিসটির অবস্থান কী?`),scene,h("div",{c:"q"},`${o[0]} ___ the ${f}.`),bs,fb,nxt,h("div",0,h("button",{c:"s",on:dash},"⬅ বন্ধ করো"))))}
+ step()}
+const SB=[["The cat is under the table.","বিড়ালটি টেবিলের নিচে আছে।"],["She lives in Dhaka.","সে ঢাকায় থাকে।"],["We have a test on Monday.","আমাদের সোমবারে পরীক্ষা আছে।"],["I go to school by bus.","আমি বাসে করে স্কুলে যাই।"],["The class starts at eight o'clock.","ক্লাস আটটায় শুরু হয়।"],["The shop is between the bank and the school.","দোকানটি ব্যাংক ও স্কুলের মাঝখানে।"],["He walked across the road.","সে রাস্তা পার হলো।"],["The bank is next to the school.","ব্যাংকটি স্কুলের পাশে।"]];
+function builder(){
+ const Q=sh(SB).slice(0,5);let q=0,good=0;
+ function step(){
+  if(q>=Q.length){save();return show(h("div",{c:"card c"},h("span",{c:"big"},"🧩"),h("h2",0,`Sentence Builder শেষ! ${good}/${Q.length}`),h("button",{c:"ok",on:builder},"🔁 আবার খেলো"),home()))}
+  const en=Q[q][0],bn=Q[q][1],pool=sh(en.split(" ").map((w,i)=>({w,i})));let pick=[],first=true,done=false;
+  const line=h("div",{c:"ex",style:"min-height:60px"}),chips=h("div",{c:"row"}),fb=h("div");
+  const nxt=h("button",{c:"ok",on:()=>{q++;step()}},q+1<Q.length?"পরের বাক্য ➜":"শেষ করো ✔");nxt.hidden=true;
+  function draw(){line.replaceChildren(...pick.map(x=>h("button",{c:"s",on:()=>{if(!done){pick=pick.filter(y=>y!==x);draw()}}},x.w)));chips.replaceChildren(...pool.filter(x=>!pick.includes(x)).map(x=>h("button",{on:()=>{if(!done){pick.push(x);draw()}}},x.w)))}
+  const chk=h("button",{c:"ok",on:()=>{
+   if(done)return;const t=pick.map(x=>x.w).join(" ");
+   if(t===en){done=true;if(first){good++;S.ok++}fb.className="fb";fb.textContent=`✔ সঠিক! ${en}`;nxt.hidden=false;chk.disabled=true;nxt.focus()}
+   else{if(first){first=false;S.bad++;S.mi=[{s:en,k:"শব্দগুলো সঠিক ক্রমে সাজাতে হবে।"},...S.mi.filter(z=>z.s!==en)].slice(0,60)}fb.className="fb bad";fb.textContent="✘ ক্রম ঠিক হয়নি। সাজানো শব্দ ছুঁয়ে সরিয়ে আবার সাজাও।"}
+   save()}},"যাচাই করো ✔");
+  draw();
+  show(h("div",{c:"card"},h("h2",0,"🧩 Sentence Builder"),h("p",0,`বাক্য ${q+1}/${Q.length}`),h("p",0,"বাংলা অর্থ: "+bn),h("p",0,"তোমার বাক্য (শব্দ ছুঁলে সরে যাবে):"),line,h("p",0,"শব্দ বেছে নাও:"),chips,chk,fb,nxt,h("div",0,h("button",{c:"s",on:dash},"⬅ বন্ধ করো"))))}
+ step()}
+function examQ(){
+ const out=[],used=new Set(),N=LV.filter(L=>!L.exam),pick=L=>sh(parse(L.T)).find(z=>!used.has(z.s));
+ N.forEach(L=>{const q=pick(L);used.add(q.s);out.push({...q,k:L.k})});
+ while(out.length<30){const L=N[Math.floor(Math.random()*N.length)],q=pick(L);if(q){used.add(q.s);out.push({...q,k:L.k})}}
+ return sh(out)}
+function examMenu(i){show(h("div",{c:"card"},h("h2",0,"🎓 চূড়ান্ত পরীক্ষা"),h("p",0,"প্রতিটি লেভেল থেকে প্রশ্ন নিয়ে মোট ৩০টি আলাদা প্রশ্ন আসবে। প্রতি প্রশ্নে একবারই উত্তর দেওয়া যায়। ৮০% বা বেশি পেলে পাস করবে ও সার্টিফিকেট পাবে।"),
+  h("p",0,S.sc[i]!=null?`সেরা স্কোর: ${S.sc[i]}%`:""),h("button",{c:"ok",on:()=>quiz(i,"X")},"▶ পরীক্ষা শুরু করো"),S.done[i]?h("button",{c:"ok",on:cert},"🎓 সার্টিফিকেট"):"",h("button",{c:"s",on:dash},"⬅ পেছনে"),home()))}
+function cert(){if(!S.done[TOTAL-1])return dash();
+ show(h("div",{c:"card c",style:"border:6px double #c8961e"},h("span",{c:"big"},"🎓"),h("h1",0,"সার্টিফিকেট অব কমপ্লিশন"),h("p",0,"এই মর্মে প্রত্যয়ন করা যাচ্ছে যে"),h("h2",0,S.ch+" PREPOSITION MASTER"),
+  h("p",0,`PREPOSITION ADVENTURE-এর সব ৩০টি লেভেল সম্পন্ন করেছে। চূড়ান্ত পরীক্ষার সেরা স্কোর: ${S.sc[TOTAL-1]}%`),h("p",0,new Date().toLocaleDateString()),
+  h("button",{on:()=>window.print()},"🖨 প্রিন্ট করো"),h("button",{c:"s",on:dash},"⬅ পেছনে"),home()))}
+function mist(){show(h("div",{c:"card"},h("h2",0,"📒 ভুলের খাতা"),S.mi.length?S.mi.map(w=>h("div",{c:"ex"},h("b",0,w.s),h("br"),w.k)):h("p",0,"এখনো কোনো ভুল নেই। দারুণ!"),
+  S.mi.length?h("button",{c:"no",on:()=>{S.mi=[];save();mist()}},"খাতা পরিষ্কার করো"):"",home()))}
+function stats(){const t=S.ok+S.bad;show(h("div",{c:"card"},h("h2",0,"📊 পরিসংখ্যান"),h("p",0,`✔ সঠিক উত্তর: ${S.ok}`),h("p",0,`✘ ভুল উত্তর: ${S.bad}`),h("p",0,`নির্ভুলতা: ${t?Math.round(S.ok/t*100):0}%`),h("p",0,`✨ XP: ${S.xp}   🪙 কয়েন: ${S.co}`),
+  LV.map((L,i)=>h("p",0,`লেভেল ${i+1} ${L.n}: ${S.sc[i]!=null?S.sc[i]+"%":"—"} ${"⭐".repeat(stars(i))}`)),home()))}
+function settings(){const box=h("div");
+ const exp=h("button",{c:"s",on:()=>{const a=h("a",{href:URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"})),download:"preposition-progress.json"});document.body.append(a);a.click();a.remove()}},"💾 ব্যাকআপ ডাউনলোড");
+ const imp=h("input",{type:"file",accept:".json,application/json","aria-label":"ব্যাকআপ ফাইল বাছো"});
+ imp.onchange=()=>{const f=imp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j||typeof j!=="object"||typeof j.done!=="object"||typeof j.sc!=="object")throw 0;S=Object.assign(DEF(),j);save();dash()}catch(e){box.textContent="⚠ ফাইলটি ঠিক নেই।"}};r.readAsText(f)};
+ show(h("div",{c:"card"},h("h2",0,"⚙ সেটিংস"),h("p",0,coverage()),h("p",0,"তোমার অগ্রগতি এই ব্রাউজারেই সেভ থাকে। এক ডিভাইস থেকে অন্য ডিভাইসে নিজে নিজে যায় না।"),
+  h("button",{c:"no",on:()=>{box.replaceChildren(h("p",0,"⚠ সব অগ্রগতি মুছে যাবে। নিশ্চিত?"),h("button",{c:"no",on:()=>{S=DEF();save();welcome()}},"হ্যাঁ, মুছে ফেলো"),h("button",{c:"s",on:settings},"না, থাক"))}},"🗑 সব অগ্রগতি মুছো"),box,h("h3",0,"ব্যাকআপ"),exp,h("p",0,"আগের ব্যাকআপ ফিরিয়ে আনো:"),imp,home()))}
+/* ---------- START ---------- */
+try{const err=validate();if(err.length)show(h("div",{c:"card"},h("h2",0,"⚠ ডেটায় সমস্যা পাওয়া গেছে"),err.map(e=>h("p",0,e))));else welcome()}
+catch(e){$.textContent="শুরু করতে সমস্যা হয়েছে: "+e.message}
+</script></body></html>
