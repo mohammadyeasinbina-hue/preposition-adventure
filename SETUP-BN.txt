@@ -1,0 +1,35 @@
+PREPOSITION ADVENTURE — PWA SETUP (Bangla)
+
+এই ZIP থেকে ZIP ফাইলটি GitHub-এ আপলোড করবে না। ZIP Extract করে ভেতরের ৪টি ফাইল তোমার GitHub repository-এর root-এ আপলোড করবে:
+- manifest.json
+- service-worker.js
+- icon-192.png
+- icon-512.png
+
+তারপর GitHub-এর index.html-এ দুই জায়গায় ছোট পরিবর্তন করতে হবে।
+
+A) <head> অংশে, <title>PREPOSITION ADVENTURE</title> লাইনের ঠিক পরে এই লাইনগুলো যোগ করো:
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2f6fe4">
+<link rel="icon" href="./icon-192.png" type="image/png">
+
+B) index.html-এর একদম শেষে, আগের game script-এর </script> এবং </body>-এর মাঝখানে এই কোড যোগ করো:
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
+      .catch(function (error) {
+        console.error("Service worker registration failed:", error);
+      });
+  });
+}
+</script>
+
+মনে রাখবে:
+- আগের গেমের JavaScript মুছবে বা বদলাবে না।
+- সব ৪টি ফাইল repository-এর মূল জায়গায় রাখতে হবে (ফোল্ডারের ভিতরে নয়)।
+- index.html-এর দুটি জায়গায় কোড যোগ করার পর Commit changes করবে।
+- GitHub Pages deploy শেষ হলে Android ফোনের Chrome দিয়ে game link খুলে ⋮ মেনু থেকে Install app অথবা Add to Home screen বেছে নেবে। Browser-এর নাম ও version অনুযায়ী শব্দ আলাদা হতে পারে।
+- PWA ইনস্টল করা মানে Play Store-এ প্রকাশ করা নয়; এটি Home Screen-এ install হওয়া web app।
