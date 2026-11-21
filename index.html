@@ -30,7 +30,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .leg{position:absolute;top:58%;width:8px;height:60px;background:#6b4423}.l1{left:27%}.l2{left:71%}
 .ob{position:absolute;font-size:30px;translate:-50% 0}.ob.hl{filter:drop-shadow(0 0 6px #ff8a3d);animation:bob 1s infinite}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style></head><body><main id="app" aria-live="polite"></main>
+</style><link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2f6fe4">
+<link rel="icon" href="./icon-192.png" type="image/png">
+</head><body><main id="app" aria-live="polite"></main>
 <script>
 "use strict";
 /* ---------- LESSON DATA (question line = sentence|answer|wrong1|wrong2) ---------- */
@@ -1017,4 +1020,14 @@ function settings(){const box=h("div");
 /* ---------- START ---------- */
 try{const err=validate();if(err.length)show(h("div",{c:"card"},h("h2",0,"⚠ ডেটায় সমস্যা পাওয়া গেছে"),err.map(e=>h("p",0,e))));else welcome()}
 catch(e){$.textContent="শুরু করতে সমস্যা হয়েছে: "+e.message}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
+      .catch(function (error) {
+        console.error("Service worker registration failed:", error);
+      });
+  });
+}
 </script></body></html>
